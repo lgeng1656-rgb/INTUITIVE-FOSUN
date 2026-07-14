@@ -8,6 +8,17 @@ import {
 } from "./navigation.js";
 
 const STAGES = ["pre", "intra", "post"];
+const SECONDARY_BACKGROUND = "/assets/medical/secondary-background.jpg";
+const CRITICAL_IMAGE_ASSETS = [
+  SECONDARY_BACKGROUND,
+  "/assets/medical/pre-overview.jpg",
+  "/assets/medical/intra-overview.jpg",
+  "/assets/medical/post-overview.jpg",
+  ...Object.values(stageButtons).flatMap((button) => [button.idle, button.active])
+];
+const DETAIL_IMAGE_ASSETS = Object.values(pages)
+  .flatMap((page) => (page.image ? [page.image] : []))
+  .filter((src) => !CRITICAL_IMAGE_ASSETS.includes(src));
 
 function areaStyle(area) {
   return {
@@ -18,7 +29,21 @@ function areaStyle(area) {
   };
 }
 
-function VideoSurface({ page }) {
+function decodeImage(image, onReady) {
+  const decoding = typeof image.decode === "function" ? image.decode() : Promise.resolve();
+  decoding.catch(() => undefined).then(onReady);
+}
+
+function preloadImage(src) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => decodeImage(image, resolve);
+    image.onerror = resolve;
+    image.src = src;
+  });
+}
+
+function VideoSurface({ page, onReady, onError }) {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -42,37 +67,60 @@ function VideoSurface({ page }) {
         src={page.video}
         autoPlay
         playsInline
-        preload="metadata"
+        preload="auto"
         aria-label={page.label}
+        onCanPlay={onReady}
+        onError={onError}
       />
     </div>
   );
 }
 
-function PageSurface({ page }) {
+function CompositeSurface({ page, onReady, onError }) {
+  const readyImages = useRef(new Set());
+  const hasReportedReady = useRef(false);
+
+  function markReady(name, image) {
+    decodeImage(image, () => {
+      readyImages.current.add(name);
+      if (readyImages.current.size === 2 && !hasReportedReady.current) {
+        hasReportedReady.current = true;
+        onReady?.();
+      }
+    });
+  }
+
+  return (
+    <div className="composite-page">
+      <img
+        className="secondary-background"
+        src={SECONDARY_BACKGROUND}
+        alt=""
+        draggable="false"
+        onLoad={(event) => markReady("background", event.currentTarget)}
+        onError={onError}
+      />
+      <div className="scene-frame">
+        <img
+          className="scene-content"
+          src={page.image}
+          alt={page.label}
+          draggable="false"
+          onLoad={(event) => markReady("scene", event.currentTarget)}
+          onError={onError}
+        />
+      </div>
+    </div>
+  );
+}
+
+function PageSurface({ page, onReady, onError }) {
   if (page.kind === "video") {
-    return <VideoSurface page={page} />;
+    return <VideoSurface page={page} onReady={onReady} onError={onError} />;
   }
 
   if (page.kind === "composite") {
-    return (
-      <div className="composite-page">
-        <img
-          className="secondary-background"
-          src="/assets/medical/secondary-background.jpg"
-          alt=""
-          draggable="false"
-        />
-        <div className="scene-frame">
-          <img
-            className="scene-content"
-            src={page.image}
-            alt={page.label}
-            draggable="false"
-          />
-        </div>
-      </div>
-    );
+    return <CompositeSurface page={page} onReady={onReady} onError={onError} />;
   }
 
   return (
@@ -81,11 +129,13 @@ function PageSurface({ page }) {
       src={page.image}
       alt={page.label}
       draggable="false"
+      onLoad={(event) => decodeImage(event.currentTarget, onReady)}
+      onError={onError}
     />
   );
 }
 
-function StageSelector({ currentStage, mode, onSelect }) {
+function StageSelector({ currentStage, disabled = false, mode, onSelect }) {
   return (
     <div className="stage-selector" aria-label="术前术中术后切换">
       {STAGES.map((stage) => {
@@ -99,9 +149,10 @@ function StageSelector({ currentStage, mode, onSelect }) {
             className={`stage-button ${mode === "baked" ? "is-baked" : ""}`}
             style={areaStyle(button.area)}
             aria-label={`切换到${button.label}`}
+            disabled={disabled}
             onClick={(event) => {
               event.stopPropagation();
-              onSelect(stage);
+              if (!disabled) onSelect(stage);
             }}
           >
             {mode === "rendered" ? (
@@ -110,6 +161,26 @@ function StageSelector({ currentStage, mode, onSelect }) {
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function VisualScene({ className = "", navigation, onError, onReady, onSelectStage }) {
+  const page = pages[navigation.current];
+  const isInactive =
+    className.includes("transition-cover") || className.includes("retained-scene");
+
+  return (
+    <div className={`visual-scene ${className}`} aria-hidden={isInactive || undefined}>
+      <PageSurface page={page} onReady={onReady} onError={onError} />
+      {page.stage && page.kind !== "video" ? (
+        <StageSelector
+          currentStage={page.stage}
+          disabled={isInactive}
+          mode={page.buttons}
+          onSelect={onSelectStage}
+        />
+      ) : null}
     </div>
   );
 }
@@ -135,11 +206,103 @@ function HotspotLayer({ hotspots, onActivate }) {
 }
 
 export default function App() {
-  const [navigation, setNavigation] = useState(createInitialState);
+  const [view, setView] = useState(() => ({
+    navigation: createInitialState(),
+    outgoing: null,
+    retained: null,
+    transitionId: 0
+  }));
+  const navigation = view.navigation;
+  const outgoing = view.outgoing;
+  const retained = view.retained;
   const page = pages[navigation.current];
 
+  useEffect(() => {
+    let cancelled = false;
+
+    Promise.all(CRITICAL_IMAGE_ASSETS.map(preloadImage)).then(() => {
+      if (!cancelled) DETAIL_IMAGE_ASSETS.forEach(preloadImage);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!outgoing) return undefined;
+
+    const timeout = window.setTimeout(() => {
+      setView((current) => {
+        if (current.outgoing?.id !== outgoing.id) return current;
+        return {
+          ...current,
+          navigation: current.outgoing.navigation,
+          outgoing: null
+        };
+      });
+    }, 8000);
+
+    return () => window.clearTimeout(timeout);
+  }, [outgoing]);
+
+  function startTransition(getNextNavigation) {
+    setView((current) => {
+      if (current.outgoing) return current;
+
+      const nextNavigation = getNextNavigation(current.navigation);
+      if (nextNavigation.current === current.navigation.current) return current;
+
+      if (
+        current.retained &&
+        pages[current.navigation.current].kind === "video" &&
+        nextNavigation.current === current.retained.current
+      ) {
+        return {
+          ...current,
+          navigation: current.retained,
+          outgoing: null,
+          retained: null
+        };
+      }
+
+      const transitionId = current.transitionId + 1;
+      return {
+        navigation: nextNavigation,
+        outgoing: { id: transitionId, navigation: current.navigation },
+        retained: null,
+        transitionId
+      };
+    });
+  }
+
+  function finishTransition(transitionId) {
+    setView((current) => {
+      if (current.outgoing?.id !== transitionId) return current;
+      return {
+        ...current,
+        retained:
+          pages[current.navigation.current].kind === "video"
+            ? current.outgoing.navigation
+            : null,
+        outgoing: null
+      };
+    });
+  }
+
+  function cancelTransition(transitionId) {
+    setView((current) => {
+      if (current.outgoing?.id !== transitionId) return current;
+      return {
+        ...current,
+        navigation: current.outgoing.navigation,
+        outgoing: null
+      };
+    });
+  }
+
   function handleHotspot(hotspot) {
-    setNavigation((current) =>
+    startTransition((current) =>
       hotspot.action === "stage"
         ? openStage(current, hotspot.target)
         : openPage(current, hotspot.target)
@@ -149,7 +312,7 @@ export default function App() {
   function handleSurfaceClick() {
     if (navigation.current === "home") return;
     if (page.kind === "video" || page.returnOnSurface) {
-      setNavigation((current) => goBack(current));
+      startTransition((current) => goBack(current));
     }
   }
 
@@ -160,22 +323,43 @@ export default function App() {
         data-page={navigation.current}
         data-stage={navigation.stage ?? "home"}
         aria-label={page.label}
+        aria-busy={outgoing ? "true" : "false"}
         onClick={handleSurfaceClick}
       >
-        <PageSurface page={page} />
-        {page.kind !== "video" ? (
+        <VisualScene
+          key={`scene-${navigation.current}`}
+          className={outgoing ? "is-loading" : ""}
+          navigation={navigation}
+          onReady={
+            outgoing ? () => finishTransition(outgoing.id) : undefined
+          }
+          onError={
+            outgoing ? () => cancelTransition(outgoing.id) : undefined
+          }
+          onSelectStage={(stage) =>
+            startTransition((current) => openStage(current, stage))
+          }
+        />
+        {outgoing ? (
+          <VisualScene
+            key={`scene-${outgoing.navigation.current}`}
+            className="transition-cover"
+            navigation={outgoing.navigation}
+            onSelectStage={() => undefined}
+          />
+        ) : null}
+        {retained && !outgoing ? (
+          <VisualScene
+            key={`scene-${retained.current}`}
+            className="retained-scene"
+            navigation={retained}
+            onSelectStage={() => undefined}
+          />
+        ) : null}
+        {!outgoing && page.kind !== "video" ? (
           <HotspotLayer
             hotspots={page.hotspots}
             onActivate={handleHotspot}
-          />
-        ) : null}
-        {page.stage && page.kind !== "video" ? (
-          <StageSelector
-            currentStage={page.stage}
-            mode={page.buttons}
-            onSelect={(stage) =>
-              setNavigation((current) => openStage(current, stage))
-            }
           />
         ) : null}
       </section>

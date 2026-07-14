@@ -48,6 +48,36 @@ button {
   touch-action: manipulation;
 }
 
+.visual-scene,
+.transition-cover,
+.retained-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.visual-scene {
+  z-index: 1;
+}
+
+.retained-scene {
+  z-index: 0;
+}
+
+.visual-scene.is-loading,
+.visual-scene.is-loading .stage-button,
+.transition-cover,
+.transition-cover .stage-button,
+.retained-scene,
+.retained-scene .stage-button {
+  pointer-events: none;
+}
+
+.transition-cover {
+  z-index: 30;
+}
+
 .full-page-image,
 .secondary-background,
 .video-surface,
