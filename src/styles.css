@@ -1,0 +1,161 @@
+:root {
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  color-scheme: dark;
+  background: #000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #000;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button {
+  font: inherit;
+}
+
+.viewport {
+  display: grid;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  place-items: center;
+  overflow: hidden;
+  background: #000;
+}
+
+.design-stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.full-page-image,
+.secondary-background,
+.video-surface,
+.composite-page {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.full-page-image,
+.secondary-background {
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.composite-page {
+  background: #3344f3;
+}
+
+.scene-frame {
+  position: absolute;
+  left: 11.9%;
+  top: 12.2%;
+  width: 76.2%;
+  height: 67.3%;
+  overflow: hidden;
+  border: clamp(2px, 0.26vw, 5px) solid #b9c2f7;
+  border-radius: clamp(16px, 2.1vw, 40px);
+  background: #fff;
+  box-shadow: 0 12px 11px rgba(34, 38, 115, 0.34);
+}
+
+.scene-content {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+
+.video-surface {
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.video-player {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  pointer-events: none;
+}
+
+.hotspot-layer,
+.stage-selector {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.interaction-hotspot,
+.stage-button {
+  position: absolute;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stage-button {
+  z-index: 20;
+}
+
+.stage-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.stage-button.is-baked {
+  background: transparent;
+}
+
+.interaction-hotspot:focus,
+.interaction-hotspot:focus-visible,
+.stage-button:focus,
+.stage-button:focus-visible {
+  outline: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
