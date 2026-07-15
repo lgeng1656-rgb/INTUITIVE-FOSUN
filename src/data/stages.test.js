@@ -51,10 +51,10 @@ test("四个视频入口使用固定 MP4 文件名", () => {
       pages["video-analysis"].video
     ],
     [
-      "/videos/planning.mp4",
-      "/videos/navigation.mp4",
-      "/videos/review.mp4",
-      "/videos/analysis.mp4"
+      "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com/planning.mp4",
+      "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com/navigation.mp4",
+      "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com/review.mp4",
+      "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com/analysis.mp4"
     ]
   );
 });

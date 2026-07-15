@@ -1,4 +1,6 @@
 const area = (left, top, width, height) => ({ left, top, width, height });
+const videoBaseUrl =
+  "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com";
 
 export const stageButtons = {
   pre: {
@@ -162,24 +164,24 @@ export const pages = {
     kind: "video",
     label: "推想手术规划视频",
     stage: "pre",
-    video: "/videos/planning.mp4"
+    video: `${videoBaseUrl}/planning.mp4`
   },
   "video-navigation": {
     kind: "video",
     label: "睿术术中导航视频",
     stage: "intra",
-    video: "/videos/navigation.mp4"
+    video: `${videoBaseUrl}/navigation.mp4`
   },
   "video-review": {
     kind: "video",
     label: "睿术手术复盘视频",
     stage: "post",
-    video: "/videos/review.mp4"
+    video: `${videoBaseUrl}/review.mp4`
   },
   "video-analysis": {
     kind: "video",
     label: "睿术数据分析视频",
     stage: "post",
-    video: "/videos/analysis.mp4"
+    video: `${videoBaseUrl}/analysis.mp4`
   }
 };
