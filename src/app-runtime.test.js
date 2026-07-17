@@ -35,3 +35,36 @@ test("首页提前连接广州 COS 以减少首次视频播放等待", async () 
     /rel="preconnect" href="https:\/\/intuitive-fosun-videos-1454170689\.cos\.ap-guangzhou\.myqcloud\.com"/
   );
 });
+
+test("首页使用独立组合图层和环形路径", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const styles = await readFile(
+    new URL("./styles.css", import.meta.url),
+    "utf8"
+  );
+
+  assert.match(source, /function HomeSurface/);
+  assert.match(source, /className="home-orbit"/);
+  assert.match(source, /<animateMotion/);
+  assert.match(styles, /prefers-reduced-motion: reduce/);
+  assert.match(styles, /\.home-orbit-arrow/);
+});
+
+test("首页保留阶段时间轴、标题和六个分类标签", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(source, /className="home-timeline"/);
+  for (const copy of [
+    "术前",
+    "技能培训",
+    "手术规划",
+    "术中",
+    "远程教学",
+    "术中导航",
+    "术后",
+    "手术复盘",
+    "临床研究"
+  ]) {
+    assert.match(source, new RegExp(`>${copy}<`));
+  }
+});

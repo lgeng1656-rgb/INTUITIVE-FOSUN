@@ -34,56 +34,56 @@ export const pages = {
         label: "播放机器人功能整合视频",
         action: "page",
         target: "video-robot-integration",
-        area: area(5.2, 32.5, 9.5, 19)
+        area: area(7.1, 34.5, 7.5, 17)
       },
       {
         id: "home-ui-integration",
         label: "播放用户界面整合视频",
         action: "page",
         target: "video-ui-integration",
-        area: area(85.7, 32.5, 9.5, 19)
+        area: area(92.8, 34.5, 7.2, 17)
       },
       {
         id: "home-skills-training",
         label: "播放技能培训视频",
         action: "page",
         target: "video-skills-training",
-        area: area(19.8, 24, 9.2, 19.2)
+        area: area(20.625, 25, 9.8175, 20.28)
       },
       {
         id: "home-surgery-planning",
         label: "播放手术规划视频",
         action: "page",
         target: "video-surgery-planning",
-        area: area(29, 24, 9.2, 19.2)
+        area: area(30.4425, 25, 9.8175, 20.28)
       },
       {
         id: "home-intraoperative-assistance",
         label: "播放术中辅助视频",
         action: "page",
         target: "video-intraoperative-assistance",
-        area: area(41.2, 24, 9.2, 19.2)
+        area: area(43.02, 25, 9.8175, 20.28)
       },
       {
         id: "home-remote-teaching",
         label: "播放远程教学视频",
         action: "page",
         target: "video-remote-teaching",
-        area: area(50.4, 24, 9.2, 19.2)
+        area: area(52.8375, 25, 9.8175, 20.28)
       },
       {
         id: "home-quality-control",
         label: "播放质控管理视频",
         action: "page",
         target: "video-quality-control",
-        area: area(63.5, 24, 9.2, 19.2)
+        area: area(66.04, 25, 9.8175, 20.28)
       },
       {
         id: "home-surgery-review",
         label: "播放手术复盘视频",
         action: "page",
         target: "video-surgery-review",
-        area: area(72.7, 24, 9.2, 19.2)
+        area: area(75.8575, 25, 9.8175, 20.28)
       }
     ]
   },
