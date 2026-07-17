@@ -219,10 +219,12 @@ function strokeOrbitRange(context, polyline, startDistance, endDistance) {
 
 function drawBasePath(context, polyline) {
   context.save();
-  context.strokeStyle = "rgba(255, 255, 255, 0.78)";
+  context.strokeStyle = "#fff";
   context.lineWidth = ORBIT_BASE_LINE_WIDTH;
   context.lineCap = "round";
   context.lineJoin = "round";
+  context.shadowColor = "rgba(255, 255, 255, 0.72)";
+  context.shadowBlur = ORBIT_ACTIVE_GLOW;
   strokeOrbitRange(context, polyline, 0, polyline.at(-1).distance);
   context.restore();
 }

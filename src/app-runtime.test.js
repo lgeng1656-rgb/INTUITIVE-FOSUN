@@ -94,6 +94,10 @@ test("all four orbit paths stay visible behind the moving highlight", async () =
 
   assert.match(source, /const ORBIT_BASE_LINE_WIDTH = 3\.4/);
   assert.match(source, /function drawBasePath/);
+  assert.match(
+    source,
+    /function drawBasePath[\s\S]*context\.strokeStyle = "#fff";[\s\S]*context\.shadowBlur = ORBIT_ACTIVE_GLOW;/
+  );
   assert.match(source, /function drawAllBasePaths/);
   assert.match(source, /ORBIT_PATHS\.forEach/);
 });
