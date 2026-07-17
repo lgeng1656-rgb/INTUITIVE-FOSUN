@@ -168,12 +168,28 @@ test("首页保留阶段时间轴、标题和六个分类标签", async () => {
     "技能培训",
     "手术规划",
     "术中",
+    "术中辅助",
     "远程教学",
-    "术中导航",
     "术后",
-    "手术复盘",
-    "临床研究"
+    "质控管理",
+    "手术复盘"
   ]) {
     assert.match(source, new RegExp(`>${copy}<`));
   }
+});
+
+test("bottom glass container breathes slowly without moving its content", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
+
+  assert.match(source, /className="home-bottom-breath"/);
+  assert.match(styles, /\.home-bottom-breath\s*\{[\s\S]*animation:\s*home-bottom-breathe 5s ease-in-out infinite;/);
+  assert.match(styles, /@keyframes home-bottom-breathe/);
+  assert.match(styles, /opacity:\s*0\.35/);
+  assert.match(styles, /opacity:\s*0\.7/);
+  const animationStart = styles.indexOf("@keyframes home-bottom-breathe");
+  const animationEnd = styles.indexOf(".home-scene", animationStart);
+  const animationBlock = styles.slice(animationStart, animationEnd);
+  assert.doesNotMatch(animationBlock, /transform:/);
+  assert.match(styles, /prefers-reduced-motion:\s*reduce[\s\S]*\.home-bottom-breath[\s\S]*animation:\s*none/);
 });

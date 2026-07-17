@@ -415,6 +415,7 @@ function HomeSurface({ onReady, onError }) {
   return (
     <div className="home-page">
       {renderImage("background", "home-background", "")}
+      <div className="home-bottom-breath" aria-hidden="true" />
       {renderImage("pre", "home-scene home-scene-pre", "术前")}
       {renderImage("intra", "home-scene home-scene-intra", "术中")}
       {renderImage("post", "home-scene home-scene-post", "术后")}
@@ -443,15 +444,15 @@ function HomeSurface({ onReady, onError }) {
       <div className="home-stage-copy home-stage-copy-intra">
         <strong>术中</strong>
         <div className="home-stage-pills">
+          <span>术中辅助</span>
           <span>远程教学</span>
-          <span>术中导航</span>
         </div>
       </div>
       <div className="home-stage-copy home-stage-copy-post">
         <strong>术后</strong>
         <div className="home-stage-pills">
+          <span>质控管理</span>
           <span>手术复盘</span>
-          <span>临床研究</span>
         </div>
       </div>
       <HomeOrbitCanvas />
