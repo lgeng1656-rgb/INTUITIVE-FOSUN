@@ -88,7 +88,7 @@ function VideoSurface({ page, onReady, onError }) {
 const ORBIT_WIDTH = 4000;
 const ORBIT_DURATION = 16000;
 const ORBIT_BASE_LINE_WIDTH = 3.4;
-const ORBIT_LINE_WIDTH = 4.2;
+const ORBIT_LINE_WIDTH = ORBIT_BASE_LINE_WIDTH;
 const ORBIT_TRAIL_LENGTH = 420;
 const ORBIT_LEAD_GAP = 58;
 const ORBIT_ACTIVE_GLOW = 10;
@@ -269,6 +269,9 @@ function drawMovingSegment(context, polyline, requestedHeadDistance) {
   context.save();
   context.translate(head.x, head.y);
   context.rotate(angle);
+  // 箭头保持纯白，但关闭填充阴影，避免小尺寸三角形产生矩形光斑。
+  context.shadowColor = "transparent";
+  context.shadowBlur = 0;
   context.beginPath();
   context.moveTo(27, 0);
   context.lineTo(-21, -14);

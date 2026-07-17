@@ -61,7 +61,7 @@ test("上下两段亮线与各自箭头沿开放轨迹同步运动", async () =>
   assert.match(source, /requestAnimationFrame/);
   assert.match(source, /drawMovingSegment/);
   assert.match(source, /buildOrbitPolyline/);
-  assert.match(source, /const ORBIT_LINE_WIDTH = 4\.2/);
+  assert.match(source, /const ORBIT_LINE_WIDTH = ORBIT_BASE_LINE_WIDTH/);
   assert.match(source, /const ORBIT_DURATION = 16000/);
   assert.match(source, /prefers-reduced-motion: reduce/);
   assert.match(styles, /\.home-orbit/);
@@ -120,6 +120,16 @@ test("moving arrow keeps a transparent break immediately ahead", async () => {
   assert.match(source, /globalCompositeOperation = "destination-out"/);
   assert.match(source, /eraseLeadGap\(context, path\.polyline, headDistance\)/);
   assert.match(styles, /\.home-orbit-top\s*\{[^}]*top:\s*18\.6667%/s);
+});
+
+test("moving trail matches the base line and arrow fill has no rectangular shadow", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(source, /const ORBIT_LINE_WIDTH = ORBIT_BASE_LINE_WIDTH/);
+  assert.match(
+    source,
+    /context\.translate\(head\.x, head\.y\);[\s\S]*context\.shadowColor = "transparent";[\s\S]*context\.shadowBlur = 0;[\s\S]*context\.fill\(\);/
+  );
 });
 
 test("right integration uses the native 4000px reference position", async () => {
