@@ -87,11 +87,15 @@ function VideoSurface({ page, onReady, onError }) {
 
 const ORBIT_WIDTH = 4000;
 const ORBIT_DURATION = 16000;
-const ORBIT_LINE_WIDTH = 4.7;
-const ORBIT_TRAIL_FRACTION = 0.36;
+const ORBIT_BASE_LINE_WIDTH = 3.4;
+const ORBIT_LINE_WIDTH = 4.2;
+const ORBIT_TRAIL_LENGTH = 420;
+const ORBIT_LEAD_GAP = 58;
+const ORBIT_ACTIVE_GLOW = 10;
 const ORBIT_BAND_HEIGHT = 300;
-const ORBIT_TOP_OFFSET = 450;
+const ORBIT_TOP_OFFSET = 420;
 const ORBIT_BOTTOM_OFFSET = 1140;
+const ORBIT_SEGMENT_ORDER = ["top", "right", "bottom", "left"];
 
 function cubicPoint(start, control1, control2, end, progress) {
   const inverse = 1 - progress;
@@ -110,25 +114,45 @@ function cubicPoint(start, control1, control2, end, progress) {
 }
 
 function buildOrbitPolyline(direction) {
-  const isTop = direction === "top";
-  const start = isTop ? { x: 420, y: 715 } : { x: 3680, y: 1160 };
-  const firstEnd = isTop ? { x: 890, y: 470 } : { x: 3190, y: 1395 };
-  const lineEnd = isTop ? { x: 3190, y: 470 } : { x: 890, y: 1395 };
-  const end = isTop ? { x: 3680, y: 715 } : { x: 420, y: 1160 };
-  const firstControls = isTop
-    ? [{ x: 530, y: 540 }, { x: 670, y: 470 }]
-    : [{ x: 3560, y: 1330 }, { x: 3410, y: 1395 }];
-  const lastControls = isTop
-    ? [{ x: 3410, y: 470 }, { x: 3550, y: 540 }]
-    : [{ x: 670, y: 1395 }, { x: 530, y: 1330 }];
   const points = [];
 
-  for (let step = 0; step <= 40; step += 1) {
-    points.push(cubicPoint(start, firstControls[0], firstControls[1], firstEnd, step / 40));
+  function appendCurve(start, control1, control2, end, includeStart = true) {
+    for (let step = includeStart ? 0 : 1; step <= 40; step += 1) {
+      points.push(cubicPoint(start, control1, control2, end, step / 40));
+    }
   }
-  points.push(lineEnd);
-  for (let step = 1; step <= 40; step += 1) {
-    points.push(cubicPoint(lineEnd, lastControls[0], lastControls[1], end, step / 40));
+
+  if (direction === "top") {
+    appendCurve(
+      { x: 420, y: 655 },
+      { x: 530, y: 510 },
+      { x: 670, y: 440 },
+      { x: 875, y: 440 }
+    );
+    points.push({ x: 3125, y: 440 });
+    appendCurve(
+      { x: 3125, y: 440 },
+      { x: 3330, y: 440 },
+      { x: 3470, y: 510 },
+      { x: 3580, y: 655 },
+      false
+    );
+  } else if (direction === "right") {
+    appendCurve(
+      { x: 3580, y: 1150 },
+      { x: 3470, y: 1295 },
+      { x: 3330, y: 1362 },
+      { x: 3125, y: 1362 }
+    );
+  } else if (direction === "bottom") {
+    points.push({ x: 3125, y: 1362 }, { x: 875, y: 1362 });
+  } else {
+    appendCurve(
+      { x: 875, y: 1362 },
+      { x: 670, y: 1362 },
+      { x: 530, y: 1295 },
+      { x: 420, y: 1150 }
+    );
   }
 
   let distance = 0;
@@ -140,8 +164,29 @@ function buildOrbitPolyline(direction) {
   });
 }
 
-const TOP_ORBIT = buildOrbitPolyline("top");
-const BOTTOM_ORBIT = buildOrbitPolyline("bottom");
+let orbitStartDistance = 0;
+const ORBIT_PATHS = ORBIT_SEGMENT_ORDER.map((name) => {
+  const polyline = buildOrbitPolyline(name);
+  const length = polyline.at(-1).distance;
+  const path = {
+    name,
+    polyline,
+    length,
+    startDistance: orbitStartDistance,
+    offset: name === "top" ? ORBIT_TOP_OFFSET : ORBIT_BOTTOM_OFFSET,
+    band: name === "top" ? "top" : "bottom"
+  };
+  orbitStartDistance += length;
+  return path;
+});
+const ORBIT_TOTAL_LENGTH = orbitStartDistance;
+
+function getActiveOrbitPath(distance) {
+  return (
+    ORBIT_PATHS.find((path) => distance < path.startDistance + path.length) ??
+    ORBIT_PATHS.at(-1)
+  );
+}
 
 function pointAtDistance(polyline, targetDistance) {
   const total = polyline.at(-1).distance;
@@ -172,22 +217,53 @@ function strokeOrbitRange(context, polyline, startDistance, endDistance) {
   context.stroke();
 }
 
-function drawMovingSegment(context, polyline, headFraction, trailFraction = ORBIT_TRAIL_FRACTION) {
-  const total = polyline.at(-1).distance;
-  const headDistance = Math.min(1, Math.max(0, headFraction)) * total;
-  const tailDistance = headDistance - trailFraction * total;
+function drawBasePath(context, polyline) {
+  context.save();
+  context.strokeStyle = "rgba(255, 255, 255, 0.78)";
+  context.lineWidth = ORBIT_BASE_LINE_WIDTH;
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  strokeOrbitRange(context, polyline, 0, polyline.at(-1).distance);
+  context.restore();
+}
 
+function eraseLeadGap(context, polyline, headDistance) {
+  const total = polyline.at(-1).distance;
+  const gapStart = Math.min(total, headDistance + 24);
+  const gapEnd = Math.min(total, gapStart + ORBIT_LEAD_GAP);
+
+  context.save();
+  context.globalCompositeOperation = "destination-out";
+  context.strokeStyle = "#000";
+  context.lineWidth = 16;
+  context.lineCap = "round";
+  strokeOrbitRange(context, polyline, gapStart, gapEnd);
+  context.restore();
+}
+
+function drawMovingSegment(context, polyline, requestedHeadDistance) {
+  const total = polyline.at(-1).distance;
+  const headDistance = Math.min(total, Math.max(0, requestedHeadDistance));
+  const tailDistance = headDistance - ORBIT_TRAIL_LENGTH;
+
+  context.save();
   context.strokeStyle = "#fff";
   context.fillStyle = "#fff";
   context.lineWidth = ORBIT_LINE_WIDTH;
   context.lineCap = "round";
   context.lineJoin = "round";
+  context.shadowColor = "rgba(255, 255, 255, 0.72)";
+  context.shadowBlur = ORBIT_ACTIVE_GLOW;
 
   strokeOrbitRange(context, polyline, Math.max(0, tailDistance), headDistance);
 
   const head = pointAtDistance(polyline, headDistance);
-  const behind = pointAtDistance(polyline, Math.max(0, headDistance - 28));
-  const angle = Math.atan2(head.y - behind.y, head.x - behind.x);
+  const tangentStart = pointAtDistance(polyline, Math.max(0, headDistance - 28));
+  const tangentEnd = pointAtDistance(polyline, Math.min(total, headDistance + 28));
+  const angle = Math.atan2(
+    tangentEnd.y - tangentStart.y,
+    tangentEnd.x - tangentStart.x
+  );
   context.save();
   context.translate(head.x, head.y);
   context.rotate(angle);
@@ -197,6 +273,7 @@ function drawMovingSegment(context, polyline, headFraction, trailFraction = ORBI
   context.lineTo(-21, 14);
   context.closePath();
   context.fill();
+  context.restore();
   context.restore();
 }
 
@@ -213,25 +290,55 @@ function HomeOrbitCanvas() {
     let animationFrame = 0;
     let startTime;
 
-    function drawBand(context, polyline, offset, phase, trailFraction) {
-      context.clearRect(0, 0, ORBIT_WIDTH, ORBIT_BAND_HEIGHT);
+    function clearBands() {
+      topContext.clearRect(0, 0, ORBIT_WIDTH, ORBIT_BAND_HEIGHT);
+      bottomContext.clearRect(0, 0, ORBIT_WIDTH, ORBIT_BAND_HEIGHT);
+    }
+
+    function eraseOrbitPosition(distance) {
+      const path = getActiveOrbitPath(distance);
+      const headDistance = distance - path.startDistance;
+      const context = path.band === "top" ? topContext : bottomContext;
       context.save();
-      context.translate(0, -offset);
-      drawMovingSegment(context, polyline, phase, trailFraction);
+      context.translate(0, -path.offset);
+      eraseLeadGap(context, path.polyline, headDistance);
       context.restore();
     }
 
+    function drawOrbitPosition(distance) {
+      const path = getActiveOrbitPath(distance);
+      const headDistance = distance - path.startDistance;
+      const context = path.band === "top" ? topContext : bottomContext;
+      context.save();
+      context.translate(0, -path.offset);
+      drawMovingSegment(context, path.polyline, headDistance);
+      context.restore();
+    }
+
+    function drawAllBasePaths() {
+      ORBIT_PATHS.forEach((path) => {
+        const context = path.band === "top" ? topContext : bottomContext;
+        context.save();
+        context.translate(0, -path.offset);
+        drawBasePath(context, path.polyline);
+        context.restore();
+      });
+    }
+
     function drawFrame(timestamp) {
+      clearBands();
+      drawAllBasePaths();
       if (reducedMotion) {
-        drawBand(topContext, TOP_ORBIT, ORBIT_TOP_OFFSET, 1, 1);
-        drawBand(bottomContext, BOTTOM_ORBIT, ORBIT_BOTTOM_OFFSET, 1, 1);
         return;
       }
 
       startTime ??= timestamp;
       const phase = ((timestamp - startTime) % ORBIT_DURATION) / ORBIT_DURATION;
-      drawBand(topContext, TOP_ORBIT, ORBIT_TOP_OFFSET, (phase + 0.36) % 1);
-      drawBand(bottomContext, BOTTOM_ORBIT, ORBIT_BOTTOM_OFFSET, (phase + 0.86) % 1);
+      const travelDistance = phase * ORBIT_TOTAL_LENGTH;
+      const oppositeDistance = (travelDistance + ORBIT_TOTAL_LENGTH / 2) % ORBIT_TOTAL_LENGTH;
+      const orbitPositions = [travelDistance, oppositeDistance];
+      orbitPositions.forEach(eraseOrbitPosition);
+      orbitPositions.forEach(drawOrbitPosition);
       animationFrame = window.requestAnimationFrame(drawFrame);
     }
 

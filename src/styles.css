@@ -112,56 +112,56 @@ button {
 }
 
 .home-scene {
-  top: 25%;
-  width: 19.635%;
-  height: 20.28%;
+  top: 23.46%;
+  width: 18.31%;
+  height: 18.91%;
   object-fit: fill;
 }
 
 .home-scene-pre {
-  left: 20.625%;
+  left: 19.38%;
 }
 
 .home-scene-intra {
-  left: 43.02%;
+  left: 40.42%;
 }
 
 .home-scene-post {
-  left: 66.04%;
+  left: 62.01%;
 }
 
 .home-integration {
-  top: 34.65%;
+  top: 33.89%;
   height: 12.622%;
   object-fit: contain;
 }
 
 .home-integration-left {
-  left: 7.5%;
+  left: 6.26%;
   width: 6.775%;
 }
 
 .home-integration-right {
-  left: 93.05%;
+  left: 87.35%;
   width: 5.8%;
 }
 
 .home-timeline {
   position: absolute;
-  left: 20.625%;
-  top: 48.15%;
-  width: 65.95%;
+  left: 19.38%;
+  top: 45.18%;
+  width: 61.25%;
   height: 0;
-  border-top: min(0.12vw, 0.21vh) dotted rgba(255, 255, 255, 0.88);
+  border-top: min(0.07vw, 0.12vh) dotted rgba(255, 255, 255, 0.88);
   pointer-events: none;
 }
 
 .home-timeline-marker {
   position: absolute;
   top: 0;
-  width: min(1.05vw, 1.87vh);
+  width: min(0.9vw, 1.6vh);
   aspect-ratio: 1;
-  border: min(0.1vw, 0.18vh) solid rgba(255, 255, 255, 0.9);
+  border: min(0.08vw, 0.14vh) solid rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   background: #4250f1;
   transform: translate(-50%, -50%);
@@ -172,37 +172,37 @@ button {
 }
 
 .home-timeline-marker-intra {
-  left: 49%;
+  left: 49.3%;
 }
 
 .home-timeline-marker-post {
-  left: 83.5%;
+  left: 84.6%;
 }
 
 .home-stage-copy {
   position: absolute;
-  top: 50.35%;
-  width: 19.635%;
+  top: 47.45%;
+  width: 18.31%;
   color: #fff;
   text-align: center;
   pointer-events: none;
 }
 
 .home-stage-copy-pre {
-  left: 20.625%;
+  left: 19.38%;
 }
 
 .home-stage-copy-intra {
-  left: 43.02%;
+  left: 40.42%;
 }
 
 .home-stage-copy-post {
-  left: 66.04%;
+  left: 62.01%;
 }
 
 .home-stage-copy strong {
   display: block;
-  font-size: min(2.08vw, 3.7vh);
+  font-size: min(1.9vw, 3.38vh);
   font-weight: 700;
   line-height: 1.15;
 }
@@ -210,17 +210,17 @@ button {
 .home-stage-pills {
   display: flex;
   justify-content: center;
-  gap: min(0.65vw, 1.16vh);
+  gap: min(0.55vw, 0.98vh);
   margin-top: min(1.05vw, 1.86vh);
   white-space: nowrap;
 }
 
 .home-stage-pills span {
-  min-width: min(8.8vw, 15.65vh);
+  min-width: min(8.45vw, 15.02vh);
   padding: min(0.23vw, 0.41vh) min(0.85vw, 1.51vh);
-  border: min(0.08vw, 0.14vh) solid rgba(255, 255, 255, 0.88);
+  border: min(0.07vw, 0.12vh) solid rgba(255, 255, 255, 0.88);
   border-radius: 999px;
-  font-size: min(1.34vw, 2.38vh);
+  font-size: min(1.24vw, 2.2vh);
   font-weight: 400;
   line-height: 1.2;
 }
@@ -232,7 +232,7 @@ button {
 }
 
 .home-orbit-top {
-  top: 20%;
+  top: 18.6667%;
 }
 
 .home-orbit-bottom {
