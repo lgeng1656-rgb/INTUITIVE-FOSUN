@@ -16,6 +16,23 @@ test("页面切换保留旧画面直到目标图片或视频可以显示", async
   assert.match(source, /preload="auto"/);
 });
 
+test("阶段入口使用手动播放的视频介绍页并允许点击空白返回", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
+
+  assert.match(source, /function VideoIntroSurface/);
+  assert.match(source, /className="video-intro-page"/);
+  assert.match(source, /className="video-intro-copy"/);
+  assert.match(source, />此处有内容此处有内容此处有内容。</);
+  assert.match(source, /controls/);
+  assert.match(source, /preload="metadata"/);
+  assert.match(source, /onClick=\{\(event\) => event\.stopPropagation\(\)\}/);
+  assert.match(styles, /\.video-intro-media\s*\{/);
+  assert.match(styles, /\.video-intro-title\s*\{/);
+  assert.match(styles, /text-indent:\s*2em/);
+  assert.match(styles, /text-align:\s*left/);
+});
+
 test("视频播放期间保留上一级场景并优先预加载三个阶段总览", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
 

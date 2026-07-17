@@ -1,6 +1,18 @@
 const area = (left, top, width, height) => ({ left, top, width, height });
 const videoBaseUrl =
   "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com";
+const videoIntroBackground = "/assets/medical/video-intro-background.jpg";
+
+const videoIntroPage = ({ label, titleImage, video, cover }) => ({
+  kind: "video-intro",
+  label,
+  background: videoIntroBackground,
+  titleImage,
+  video,
+  cover,
+  returnOnSurface: true,
+  hotspots: []
+});
 
 export const stageButtons = {
   pre: {
@@ -229,33 +241,45 @@ export const pages = {
     video: `${videoBaseUrl}/planning.mp4`
   },
   "video-skills-training": {
-    kind: "video",
-    label: "技能培训视频",
-    video: `${videoBaseUrl}/planning.mp4`
+    ...videoIntroPage({
+      label: "术前-技能培训",
+      titleImage: "/assets/medical/video-intro-title-skills-training.png",
+      cover: "/assets/medical/video-intro-cover-skills-training.png"
+    })
   },
   "video-surgery-planning": {
-    kind: "video",
-    label: "手术规划视频",
-    video: `${videoBaseUrl}/planning.mp4`
+    ...videoIntroPage({
+      label: "术前-手术规划",
+      titleImage: "/assets/medical/video-intro-title-surgery-planning.png",
+      video: `${videoBaseUrl}/1%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92.mp4`
+    })
   },
   "video-intraoperative-assistance": {
-    kind: "video",
-    label: "术中辅助视频",
-    video: `${videoBaseUrl}/planning.mp4`
+    ...videoIntroPage({
+      label: "术中-术中辅助",
+      titleImage: "/assets/medical/video-intro-title-intraoperative-assistance.png",
+      video: `${videoBaseUrl}/2%E6%9C%AF%E4%B8%AD%E8%BE%85%E5%8A%A9.mp4`
+    })
   },
   "video-remote-teaching": {
-    kind: "video",
-    label: "远程教学视频",
-    video: `${videoBaseUrl}/planning.mp4`
+    ...videoIntroPage({
+      label: "术中-远程教学",
+      titleImage: "/assets/medical/video-intro-title-remote-teaching.png",
+      video: `${videoBaseUrl}/2%E8%BF%9C%E7%A8%8B%E6%95%99%E5%AD%A6.mp4`
+    })
   },
   "video-quality-control": {
-    kind: "video",
-    label: "质控管理视频",
-    video: `${videoBaseUrl}/planning.mp4`
+    ...videoIntroPage({
+      label: "术后-质控管理",
+      titleImage: "/assets/medical/video-intro-title-quality-control.png",
+      cover: "/assets/medical/video-intro-cover-quality-control.png"
+    })
   },
   "video-surgery-review": {
-    kind: "video",
-    label: "手术复盘视频",
-    video: `${videoBaseUrl}/planning.mp4`
+    ...videoIntroPage({
+      label: "术后-手术复盘",
+      titleImage: "/assets/medical/video-intro-title-surgery-review.png",
+      video: `${videoBaseUrl}/3%E6%89%8B%E6%9C%AF%E5%A4%8D%E7%9B%98.mp4`
+    })
   }
 };

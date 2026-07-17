@@ -26,7 +26,8 @@ const CRITICAL_IMAGE_ASSETS = [
   ...Object.values(stageButtons).flatMap((button) => [button.idle, button.active])
 ];
 const DETAIL_IMAGE_ASSETS = Object.values(pages)
-  .flatMap((page) => (page.image ? [page.image] : []))
+  .flatMap((page) => [page.image, page.background, page.titleImage, page.cover])
+  .filter(Boolean)
   .filter((src) => !CRITICAL_IMAGE_ASSETS.includes(src));
 
 function areaStyle(area) {
@@ -79,6 +80,74 @@ function VideoSurface({ page, onReady, onError }) {
         preload="auto"
         aria-label={page.label}
         onCanPlay={onReady}
+        onError={onError}
+      />
+    </div>
+  );
+}
+
+function VideoIntroSurface({ page, onReady, onError }) {
+  const readyAssets = useRef(new Set());
+  const hasReportedReady = useRef(false);
+
+  function markReady(name) {
+    readyAssets.current.add(name);
+    if (readyAssets.current.size === 3 && !hasReportedReady.current) {
+      hasReportedReady.current = true;
+      onReady?.();
+    }
+  }
+
+  function markImageReady(name, image) {
+    decodeImage(image, () => markReady(name));
+  }
+
+  return (
+    <div className="video-intro-page">
+      <img
+        className="video-intro-background"
+        src={page.background}
+        alt=""
+        draggable="false"
+        onLoad={(event) => markImageReady("background", event.currentTarget)}
+        onError={onError}
+      />
+      <div className="video-intro-copy">
+        <p>此处有内容此处有内容此处有内容。</p>
+        <p>此处有内容此处有内容此处有内容。</p>
+      </div>
+      <div
+        className="video-intro-media"
+        onClick={(event) => event.stopPropagation()}
+      >
+        {page.video ? (
+          <video
+            className="video-intro-player"
+            src={page.video}
+            controls
+            playsInline
+            preload="metadata"
+            aria-label={`${page.label}视频`}
+            onLoadedMetadata={() => markReady("media")}
+            onError={onError}
+          />
+        ) : (
+          <img
+            className="video-intro-cover"
+            src={page.cover}
+            alt={`${page.label}封面`}
+            draggable="false"
+            onLoad={(event) => markImageReady("media", event.currentTarget)}
+            onError={onError}
+          />
+        )}
+      </div>
+      <img
+        className="video-intro-title"
+        src={page.titleImage}
+        alt={page.label}
+        draggable="false"
+        onLoad={(event) => markImageReady("title", event.currentTarget)}
         onError={onError}
       />
     </div>
@@ -505,6 +574,10 @@ function PageSurface({ page, onReady, onError }) {
 
   if (page.kind === "video") {
     return <VideoSurface page={page} onReady={onReady} onError={onError} />;
+  }
+
+  if (page.kind === "video-intro") {
+    return <VideoIntroSurface page={page} onReady={onReady} onError={onError} />;
   }
 
   if (page.kind === "composite") {
