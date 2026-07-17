@@ -217,7 +217,25 @@ function strokeOrbitRange(context, polyline, startDistance, endDistance) {
   context.stroke();
 }
 
-function drawBasePath(context, polyline) {
+function drawBasePath(context, polyline, gaps = []) {
+  const total = polyline.at(-1).distance;
+  const visibleRanges = [];
+  let rangeStart = 0;
+
+  gaps
+    .map(({ start, end }) => ({
+      start: Math.max(0, Math.min(total, start)),
+      end: Math.max(0, Math.min(total, end))
+    }))
+    .filter(({ start, end }) => end > start)
+    .sort((first, second) => first.start - second.start)
+    .forEach(({ start, end }) => {
+      if (start > rangeStart) visibleRanges.push([rangeStart, start]);
+      rangeStart = Math.max(rangeStart, end);
+    });
+
+  if (rangeStart < total) visibleRanges.push([rangeStart, total]);
+
   context.save();
   context.strokeStyle = "#fff";
   context.lineWidth = ORBIT_BASE_LINE_WIDTH;
@@ -225,22 +243,19 @@ function drawBasePath(context, polyline) {
   context.lineJoin = "round";
   context.shadowColor = "rgba(255, 255, 255, 0.72)";
   context.shadowBlur = ORBIT_ACTIVE_GLOW;
-  strokeOrbitRange(context, polyline, 0, polyline.at(-1).distance);
+  visibleRanges.forEach(([start, end]) => {
+    strokeOrbitRange(context, polyline, start, end);
+  });
   context.restore();
 }
 
-function eraseLeadGap(context, polyline, headDistance) {
-  const total = polyline.at(-1).distance;
+function getLeadGap(distance) {
+  const path = getActiveOrbitPath(distance);
+  const headDistance = distance - path.startDistance;
+  const total = path.polyline.at(-1).distance;
   const gapStart = Math.min(total, headDistance + 24);
   const gapEnd = Math.min(total, gapStart + ORBIT_LEAD_GAP);
-
-  context.save();
-  context.globalCompositeOperation = "destination-out";
-  context.strokeStyle = "#000";
-  context.lineWidth = 16;
-  context.lineCap = "round";
-  strokeOrbitRange(context, polyline, gapStart, gapEnd);
-  context.restore();
+  return { pathName: path.name, start: gapStart, end: gapEnd };
 }
 
 function drawMovingSegment(context, polyline, requestedHeadDistance) {
@@ -300,16 +315,6 @@ function HomeOrbitCanvas() {
       bottomContext.clearRect(0, 0, ORBIT_WIDTH, ORBIT_BAND_HEIGHT);
     }
 
-    function eraseOrbitPosition(distance) {
-      const path = getActiveOrbitPath(distance);
-      const headDistance = distance - path.startDistance;
-      const context = path.band === "top" ? topContext : bottomContext;
-      context.save();
-      context.translate(0, -path.offset);
-      eraseLeadGap(context, path.polyline, headDistance);
-      context.restore();
-    }
-
     function drawOrbitPosition(distance) {
       const path = getActiveOrbitPath(distance);
       const headDistance = distance - path.startDistance;
@@ -320,20 +325,20 @@ function HomeOrbitCanvas() {
       context.restore();
     }
 
-    function drawAllBasePaths() {
+    function drawAllBasePaths(gapsByPath = new Map()) {
       ORBIT_PATHS.forEach((path) => {
         const context = path.band === "top" ? topContext : bottomContext;
         context.save();
         context.translate(0, -path.offset);
-        drawBasePath(context, path.polyline);
+        drawBasePath(context, path.polyline, gapsByPath.get(path.name) ?? []);
         context.restore();
       });
     }
 
     function drawFrame(timestamp) {
       clearBands();
-      drawAllBasePaths();
       if (reducedMotion) {
+        drawAllBasePaths();
         return;
       }
 
@@ -342,7 +347,13 @@ function HomeOrbitCanvas() {
       const travelDistance = phase * ORBIT_TOTAL_LENGTH;
       const oppositeDistance = (travelDistance + ORBIT_TOTAL_LENGTH / 2) % ORBIT_TOTAL_LENGTH;
       const orbitPositions = [travelDistance, oppositeDistance];
-      orbitPositions.forEach(eraseOrbitPosition);
+      const gapsByPath = new Map();
+      orbitPositions.map(getLeadGap).forEach((gap) => {
+        const pathGaps = gapsByPath.get(gap.pathName) ?? [];
+        pathGaps.push(gap);
+        gapsByPath.set(gap.pathName, pathGaps);
+      });
+      drawAllBasePaths(gapsByPath);
       orbitPositions.forEach(drawOrbitPosition);
       animationFrame = window.requestAnimationFrame(drawFrame);
     }

@@ -83,7 +83,8 @@ test("two bright arrows stay half an orbit apart", async () => {
 
   assert.match(source, /const oppositeDistance = \(travelDistance \+ ORBIT_TOTAL_LENGTH \/ 2\) % ORBIT_TOTAL_LENGTH/);
   assert.match(source, /const orbitPositions = \[travelDistance, oppositeDistance\]/);
-  assert.match(source, /orbitPositions\.forEach\(eraseOrbitPosition\)/);
+  assert.match(source, /orbitPositions\.map\(getLeadGap\)\.forEach/);
+  assert.match(source, /drawAllBasePaths\(gapsByPath\)/);
   assert.match(source, /orbitPositions\.forEach\(drawOrbitPosition\)/);
   assert.match(source, /const ORBIT_ACTIVE_GLOW = 10/);
   assert.match(source, /shadowColor = "rgba\(255, 255, 255, 0\.72\)"/);
@@ -116,9 +117,10 @@ test("moving arrow keeps a transparent break immediately ahead", async () => {
   assert.match(source, /\{ x: 3125, y: 1362 \}/);
   assert.match(source, /\{ x: 875, y: 1362 \}/);
   assert.match(source, /\{ x: 420, y: 1150 \}/);
-  assert.match(source, /function eraseLeadGap/);
-  assert.match(source, /globalCompositeOperation = "destination-out"/);
-  assert.match(source, /eraseLeadGap\(context, path\.polyline, headDistance\)/);
+  assert.match(source, /function getLeadGap/);
+  assert.match(source, /drawBasePath\(context, path\.polyline, gapsByPath\.get\(path\.name\) \?\? \[\]\)/);
+  assert.doesNotMatch(source, /globalCompositeOperation = "destination-out"/);
+  assert.doesNotMatch(source, /function eraseLeadGap/);
   assert.match(styles, /\.home-orbit-top\s*\{[^}]*top:\s*18\.6667%/s);
 });
 
