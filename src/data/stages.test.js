@@ -2,15 +2,37 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { pages, stageButtons } from "./stages.js";
 
-test("首页只有术前术中术后三个场景入口", () => {
+const expectedHomeVideoTargets = {
+  "home-robot-integration": "video-robot-integration",
+  "home-ui-integration": "video-ui-integration",
+  "home-skills-training": "video-skills-training",
+  "home-surgery-planning": "video-surgery-planning",
+  "home-intraoperative-assistance": "video-intraoperative-assistance",
+  "home-remote-teaching": "video-remote-teaching",
+  "home-quality-control": "video-quality-control",
+  "home-surgery-review": "video-surgery-review"
+};
+
+test("新版首页提供八个直达视频入口", () => {
   assert.deepEqual(
-    pages.home.hotspots.map(({ action, target }) => [action, target]),
-    [
-      ["stage", "pre"],
-      ["stage", "intra"],
-      ["stage", "post"]
-    ]
+    Object.fromEntries(
+      pages.home.hotspots.map(({ id, action, target }) => {
+        assert.equal(action, "page");
+        return [id, target];
+      })
+    ),
+    expectedHomeVideoTargets
   );
+});
+
+test("首页八个入口目标都是独立腾讯云视频页面", () => {
+  for (const target of Object.values(expectedHomeVideoTargets)) {
+    assert.equal(pages[target].kind, "video");
+    assert.match(
+      pages[target].video,
+      /^https:\/\/intuitive-fosun-videos-1454170689\.cos\.ap-guangzhou\.myqcloud\.com\//
+    );
+  }
 });
 
 test("术前流程映射到技能培训、手术规划和规划视频", () => {

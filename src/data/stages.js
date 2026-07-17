@@ -25,31 +25,65 @@ export const stageButtons = {
 
 export const pages = {
   home: {
-    kind: "full-image",
+    kind: "home",
     label: "数字化互动首页",
-    image: "/assets/medical/home.jpg",
     returnOnSurface: false,
     hotspots: [
       {
-        id: "home-pre",
-        label: "进入术前全场景",
-        action: "stage",
-        target: "pre",
-        area: area(8.3, 27.8, 25.1, 26)
+        id: "home-robot-integration",
+        label: "播放机器人功能整合视频",
+        action: "page",
+        target: "video-robot-integration",
+        area: area(5.2, 32.5, 9.5, 19)
       },
       {
-        id: "home-intra",
-        label: "进入术中全场景",
-        action: "stage",
-        target: "intra",
-        area: area(37, 28, 25.1, 26)
+        id: "home-ui-integration",
+        label: "播放用户界面整合视频",
+        action: "page",
+        target: "video-ui-integration",
+        area: area(85.7, 32.5, 9.5, 19)
       },
       {
-        id: "home-post",
-        label: "进入术后全场景",
-        action: "stage",
-        target: "post",
-        area: area(66.4, 27.8, 25, 26)
+        id: "home-skills-training",
+        label: "播放技能培训视频",
+        action: "page",
+        target: "video-skills-training",
+        area: area(19.8, 24, 9.2, 19.2)
+      },
+      {
+        id: "home-surgery-planning",
+        label: "播放手术规划视频",
+        action: "page",
+        target: "video-surgery-planning",
+        area: area(29, 24, 9.2, 19.2)
+      },
+      {
+        id: "home-intraoperative-assistance",
+        label: "播放术中辅助视频",
+        action: "page",
+        target: "video-intraoperative-assistance",
+        area: area(41.2, 24, 9.2, 19.2)
+      },
+      {
+        id: "home-remote-teaching",
+        label: "播放远程教学视频",
+        action: "page",
+        target: "video-remote-teaching",
+        area: area(50.4, 24, 9.2, 19.2)
+      },
+      {
+        id: "home-quality-control",
+        label: "播放质控管理视频",
+        action: "page",
+        target: "video-quality-control",
+        area: area(63.5, 24, 9.2, 19.2)
+      },
+      {
+        id: "home-surgery-review",
+        label: "播放手术复盘视频",
+        action: "page",
+        target: "video-surgery-review",
+        area: area(72.7, 24, 9.2, 19.2)
       }
     ]
   },
@@ -183,5 +217,45 @@ export const pages = {
     label: "睿术数据分析视频",
     stage: "post",
     video: `${videoBaseUrl}/analysis.mp4`
+  },
+  "video-robot-integration": {
+    kind: "video",
+    label: "机器人功能整合视频",
+    video: `${videoBaseUrl}/planning.mp4`
+  },
+  "video-ui-integration": {
+    kind: "video",
+    label: "用户界面整合视频",
+    video: `${videoBaseUrl}/planning.mp4`
+  },
+  "video-skills-training": {
+    kind: "video",
+    label: "技能培训视频",
+    video: `${videoBaseUrl}/planning.mp4`
+  },
+  "video-surgery-planning": {
+    kind: "video",
+    label: "手术规划视频",
+    video: `${videoBaseUrl}/planning.mp4`
+  },
+  "video-intraoperative-assistance": {
+    kind: "video",
+    label: "术中辅助视频",
+    video: `${videoBaseUrl}/planning.mp4`
+  },
+  "video-remote-teaching": {
+    kind: "video",
+    label: "远程教学视频",
+    video: `${videoBaseUrl}/planning.mp4`
+  },
+  "video-quality-control": {
+    kind: "video",
+    label: "质控管理视频",
+    video: `${videoBaseUrl}/planning.mp4`
+  },
+  "video-surgery-review": {
+    kind: "video",
+    label: "手术复盘视频",
+    video: `${videoBaseUrl}/planning.mp4`
   }
 };
