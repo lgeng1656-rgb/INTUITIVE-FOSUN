@@ -44,10 +44,27 @@ test("首页使用独立组合图层和环形路径", async () => {
   );
 
   assert.match(source, /function HomeSurface/);
-  assert.match(source, /className="home-orbit"/);
-  assert.match(source, /<animateMotion/);
+  assert.match(source, /function HomeOrbitCanvas/);
+  assert.match(source, /className="home-orbit home-orbit-top"/);
+  assert.match(source, /className="home-orbit home-orbit-bottom"/);
+  assert.match(source, /<canvas/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
-  assert.match(styles, /\.home-orbit-arrow/);
+});
+
+test("上下两段亮线与各自箭头沿开放轨迹同步运动", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const styles = await readFile(
+    new URL("./styles.css", import.meta.url),
+    "utf8"
+  );
+
+  assert.match(source, /requestAnimationFrame/);
+  assert.match(source, /drawMovingSegment/);
+  assert.match(source, /buildOrbitPolyline/);
+  assert.match(source, /const ORBIT_LINE_WIDTH = 4\.7/);
+  assert.match(source, /const ORBIT_DURATION = 16000/);
+  assert.match(source, /prefers-reduced-motion: reduce/);
+  assert.match(styles, /\.home-orbit/);
 });
 
 test("首页保留阶段时间轴、标题和六个分类标签", async () => {

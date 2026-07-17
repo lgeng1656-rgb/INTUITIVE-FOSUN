@@ -85,6 +85,180 @@ function VideoSurface({ page, onReady, onError }) {
   );
 }
 
+const ORBIT_WIDTH = 4000;
+const ORBIT_DURATION = 16000;
+const ORBIT_LINE_WIDTH = 4.7;
+const ORBIT_TRAIL_FRACTION = 0.36;
+const ORBIT_BAND_HEIGHT = 300;
+const ORBIT_TOP_OFFSET = 450;
+const ORBIT_BOTTOM_OFFSET = 1140;
+
+function cubicPoint(start, control1, control2, end, progress) {
+  const inverse = 1 - progress;
+  return {
+    x:
+      inverse ** 3 * start.x +
+      3 * inverse ** 2 * progress * control1.x +
+      3 * inverse * progress ** 2 * control2.x +
+      progress ** 3 * end.x,
+    y:
+      inverse ** 3 * start.y +
+      3 * inverse ** 2 * progress * control1.y +
+      3 * inverse * progress ** 2 * control2.y +
+      progress ** 3 * end.y
+  };
+}
+
+function buildOrbitPolyline(direction) {
+  const isTop = direction === "top";
+  const start = isTop ? { x: 420, y: 715 } : { x: 3680, y: 1160 };
+  const firstEnd = isTop ? { x: 890, y: 470 } : { x: 3190, y: 1395 };
+  const lineEnd = isTop ? { x: 3190, y: 470 } : { x: 890, y: 1395 };
+  const end = isTop ? { x: 3680, y: 715 } : { x: 420, y: 1160 };
+  const firstControls = isTop
+    ? [{ x: 530, y: 540 }, { x: 670, y: 470 }]
+    : [{ x: 3560, y: 1330 }, { x: 3410, y: 1395 }];
+  const lastControls = isTop
+    ? [{ x: 3410, y: 470 }, { x: 3550, y: 540 }]
+    : [{ x: 670, y: 1395 }, { x: 530, y: 1330 }];
+  const points = [];
+
+  for (let step = 0; step <= 40; step += 1) {
+    points.push(cubicPoint(start, firstControls[0], firstControls[1], firstEnd, step / 40));
+  }
+  points.push(lineEnd);
+  for (let step = 1; step <= 40; step += 1) {
+    points.push(cubicPoint(lineEnd, lastControls[0], lastControls[1], end, step / 40));
+  }
+
+  let distance = 0;
+  return points.map((point, index) => {
+    if (index > 0) {
+      distance += Math.hypot(point.x - points[index - 1].x, point.y - points[index - 1].y);
+    }
+    return { ...point, distance };
+  });
+}
+
+const TOP_ORBIT = buildOrbitPolyline("top");
+const BOTTOM_ORBIT = buildOrbitPolyline("bottom");
+
+function pointAtDistance(polyline, targetDistance) {
+  const total = polyline.at(-1).distance;
+  const distance = Math.min(total, Math.max(0, targetDistance));
+  let index = 1;
+  while (index < polyline.length && polyline[index].distance < distance) index += 1;
+  const current = polyline[Math.min(index, polyline.length - 1)];
+  const previous = polyline[Math.max(0, index - 1)];
+  const span = current.distance - previous.distance || 1;
+  const progress = (distance - previous.distance) / span;
+  return {
+    x: previous.x + (current.x - previous.x) * progress,
+    y: previous.y + (current.y - previous.y) * progress
+  };
+}
+
+function strokeOrbitRange(context, polyline, startDistance, endDistance) {
+  const start = pointAtDistance(polyline, startDistance);
+  context.beginPath();
+  context.moveTo(start.x, start.y);
+  polyline.forEach((point) => {
+    if (point.distance > startDistance && point.distance < endDistance) {
+      context.lineTo(point.x, point.y);
+    }
+  });
+  const end = pointAtDistance(polyline, endDistance);
+  context.lineTo(end.x, end.y);
+  context.stroke();
+}
+
+function drawMovingSegment(context, polyline, headFraction, trailFraction = ORBIT_TRAIL_FRACTION) {
+  const total = polyline.at(-1).distance;
+  const headDistance = Math.min(1, Math.max(0, headFraction)) * total;
+  const tailDistance = headDistance - trailFraction * total;
+
+  context.strokeStyle = "#fff";
+  context.fillStyle = "#fff";
+  context.lineWidth = ORBIT_LINE_WIDTH;
+  context.lineCap = "round";
+  context.lineJoin = "round";
+
+  strokeOrbitRange(context, polyline, Math.max(0, tailDistance), headDistance);
+
+  const head = pointAtDistance(polyline, headDistance);
+  const behind = pointAtDistance(polyline, Math.max(0, headDistance - 28));
+  const angle = Math.atan2(head.y - behind.y, head.x - behind.x);
+  context.save();
+  context.translate(head.x, head.y);
+  context.rotate(angle);
+  context.beginPath();
+  context.moveTo(27, 0);
+  context.lineTo(-21, -14);
+  context.lineTo(-21, 14);
+  context.closePath();
+  context.fill();
+  context.restore();
+}
+
+function HomeOrbitCanvas() {
+  const topCanvasRef = useRef(null);
+  const bottomCanvasRef = useRef(null);
+
+  useEffect(() => {
+    const topContext = topCanvasRef.current?.getContext("2d");
+    const bottomContext = bottomCanvasRef.current?.getContext("2d");
+    if (!topContext || !bottomContext) return undefined;
+
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    let animationFrame = 0;
+    let startTime;
+
+    function drawBand(context, polyline, offset, phase, trailFraction) {
+      context.clearRect(0, 0, ORBIT_WIDTH, ORBIT_BAND_HEIGHT);
+      context.save();
+      context.translate(0, -offset);
+      drawMovingSegment(context, polyline, phase, trailFraction);
+      context.restore();
+    }
+
+    function drawFrame(timestamp) {
+      if (reducedMotion) {
+        drawBand(topContext, TOP_ORBIT, ORBIT_TOP_OFFSET, 1, 1);
+        drawBand(bottomContext, BOTTOM_ORBIT, ORBIT_BOTTOM_OFFSET, 1, 1);
+        return;
+      }
+
+      startTime ??= timestamp;
+      const phase = ((timestamp - startTime) % ORBIT_DURATION) / ORBIT_DURATION;
+      drawBand(topContext, TOP_ORBIT, ORBIT_TOP_OFFSET, (phase + 0.36) % 1);
+      drawBand(bottomContext, BOTTOM_ORBIT, ORBIT_BOTTOM_OFFSET, (phase + 0.86) % 1);
+      animationFrame = window.requestAnimationFrame(drawFrame);
+    }
+
+    animationFrame = window.requestAnimationFrame(drawFrame);
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, []);
+
+  return (
+    <>
+      <canvas
+        ref={topCanvasRef}
+        className="home-orbit home-orbit-top"
+        width={ORBIT_WIDTH}
+        height={ORBIT_BAND_HEIGHT}
+        aria-hidden="true"
+      />
+      <canvas
+        ref={bottomCanvasRef}
+        className="home-orbit home-orbit-bottom"
+        width={ORBIT_WIDTH}
+        height={ORBIT_BAND_HEIGHT}
+        aria-hidden="true"
+      />
+    </>
+  );
+}
+
 function HomeSurface({ onReady, onError }) {
   const readyImages = useRef(new Set());
   const hasReportedReady = useRef(false);
@@ -157,31 +331,7 @@ function HomeSurface({ onReady, onError }) {
           <span>临床研究</span>
         </div>
       </div>
-      <svg
-        className="home-orbit"
-        viewBox="0 0 4000 2250"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          id="home-orbit-path"
-          className="home-orbit-motion-path"
-          d="M 890 470 H 3190 C 3410 470 3550 540 3680 715 L 3680 1210 C 3560 1380 3410 1455 3190 1455 H 890 C 670 1455 530 1380 420 1210 L 420 715 C 530 540 670 470 890 470 Z"
-        />
-        <path
-          className="home-orbit-path"
-          d="M 420 715 C 530 540 670 470 890 470 H 3190 C 3410 470 3550 540 3680 715 M 3680 1210 C 3560 1380 3410 1455 3190 1455 H 890 C 670 1455 530 1380 420 1210"
-        />
-        <g className="home-orbit-static-arrow">
-          <path d="M 3050 448 L 3110 470 L 3050 492 Z" />
-        </g>
-        <g className="home-orbit-arrow">
-          <path d="M -30 -22 L 30 0 L -30 22 Z" />
-          <animateMotion dur="16s" repeatCount="indefinite" rotate="auto">
-            <mpath href="#home-orbit-path" />
-          </animateMotion>
-        </g>
-      </svg>
+      <HomeOrbitCanvas />
     </div>
   );
 }

@@ -41,7 +41,7 @@ export const pages = {
         label: "播放用户界面整合视频",
         action: "page",
         target: "video-ui-integration",
-        area: area(92.8, 34.5, 7.2, 17)
+        area: area(92.45, 34.5, 7.2, 17)
       },
       {
         id: "home-skills-training",
