@@ -513,7 +513,7 @@ function HomeSurface({ onReady, onError }) {
       <div className="home-stage-copy home-stage-copy-intra">
         <strong>术中</strong>
         <div className="home-stage-pills">
-          <span>术中辅助</span>
+          <span>术中决策</span>
           <span>远程教学</span>
         </div>
       </div>
