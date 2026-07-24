@@ -234,7 +234,7 @@ export const pages = {
   "video-robot-integration": {
     kind: "video",
     label: "机器人功能整合视频",
-    video: `${videoBaseUrl}/planning.mp4`
+    video: `${videoBaseUrl}/%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%8A%9F%E8%83%BD%E6%95%B4%E5%90%88.mp4`
   },
   "video-ui-integration": {
     kind: "video",
