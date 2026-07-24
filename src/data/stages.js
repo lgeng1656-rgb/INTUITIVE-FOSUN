@@ -266,7 +266,7 @@ export const pages = {
     ...videoIntroPage({
       label: "术中-辅助决策",
       titleImage: "/assets/medical/video-intro-title-intraoperative-assistance.png",
-      video: `${videoBaseUrl}/2%E6%9C%AF%E4%B8%AD%E8%BE%85%E5%8A%A9.mp4`
+      video: `${videoBaseUrl}/2%E8%BE%85%E5%8A%A9%E5%86%B3%E7%AD%96.mp4`
     })
   },
   "video-remote-teaching": {
@@ -280,7 +280,7 @@ export const pages = {
     ...videoIntroPage({
       label: "术后-质控管理",
       titleImage: "/assets/medical/video-intro-title-quality-control.png",
-      cover: "/assets/medical/video-intro-cover-quality-control.png"
+      video: `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%86.mp4`
     })
   },
   "video-surgery-review": {

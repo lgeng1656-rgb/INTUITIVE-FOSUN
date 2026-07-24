@@ -201,7 +201,8 @@ test("bottom glass container uses the default breathing animation without microp
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
 
-  assert.match(source, /className="home-bottom-breath"/);
+  assert.match(source, /bottom:\s*"\/assets\/medical\/home-bottom\.png"/);
+  assert.match(source, /renderImage\("bottom",\s*"home-bottom-breath"/);
   assert.doesNotMatch(source, /getUserMedia|AudioContext|webkitAudioContext/);
   assert.match(styles, /animation:\s*home-bottom-breathe 5s ease-in-out infinite;/);
   assert.doesNotMatch(styles, /--breath-duration/);
