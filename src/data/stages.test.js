@@ -9,11 +9,21 @@ const expectedHomeTargets = {
   "home-robot-integration": "video-robot-integration",
   "home-ui-integration": "video-ui-integration",
   "home-skills-training": "video-skills-training",
+  "home-skills-training-secondary": "video-skills-training-secondary",
   "home-surgery-planning": "video-surgery-planning",
   "home-intraoperative-assistance": "video-intraoperative-assistance",
   "home-remote-teaching": "video-remote-teaching",
   "home-quality-control": "video-quality-control",
   "home-surgery-review": "video-surgery-review"
+};
+
+const bakedIntroBackgrounds = {
+  "video-skills-training": "/assets/medical/secondary-pre-skills.jpg",
+  "video-skills-training-secondary": "/assets/medical/secondary-pre-skills.jpg",
+  "video-surgery-planning": "/assets/medical/secondary-pre-planning.jpg",
+  "video-intraoperative-assistance": "/assets/medical/secondary-intra-assistance.jpg",
+  "video-remote-teaching": "/assets/medical/secondary-intra-remote.jpg",
+  "video-quality-control": "/assets/medical/secondary-post-quality.jpg"
 };
 
 test("updated homepage navigation keeps the requested copy, order, and targets", () => {
@@ -43,14 +53,9 @@ test("updated homepage navigation keeps the requested copy, order, and targets",
   );
 });
 
-test("surgery planning intro uses the supplied five-line copy only", () => {
-  assert.deepEqual(pages["video-surgery-planning"].copy, [
-    "覆盖胸、肝、肾 三大领域",
-    "AI自动精准重建，看清每一个患者的解剖差异",
-    "5分钟快速交付",
-    "院内部署，数据直连CT或PACS",
-    "图文报告一键归档"
-  ]);
+test("surgery planning intro uses the copy baked into its background", () => {
+  assert.equal(pages["video-surgery-planning"].copy, undefined);
+  assert.equal(pages["video-surgery-planning"].contentBaked, true);
   assert.equal(pages["video-intraoperative-assistance"].copy, undefined);
 });
 
@@ -66,7 +71,55 @@ test("首页提供两个整合视频入口和六个视频介绍入口", () => {
   );
 });
 
-test("左右整合入口保持全屏自动播放，六个阶段入口进入手动视频介绍页", () => {
+test("术前左侧两个屏幕进入独立的技能培训页并播放各自视频", () => {
+  const targets = [
+    expectedHomeTargets["home-skills-training"],
+    expectedHomeTargets["home-skills-training-secondary"]
+  ];
+
+  assert.notEqual(targets[0], targets[1]);
+  assert.deepEqual(
+    targets.map((target) => ({
+      kind: pages[target].kind,
+      label: pages[target].label,
+      video: pages[target].video
+    })),
+    [
+      {
+        kind: "video-intro",
+        label: "术前-技能培训",
+        video: `${videoBaseUrl}/%E6%B5%8B%E8%AF%95.mp4`
+      },
+      {
+        kind: "video-intro",
+        label: "术前-技能培训",
+        video: `${videoBaseUrl}/planning.mp4`
+      }
+    ]
+  );
+
+  const hotspots = pages.home.hotspots.filter(({ id }) =>
+    ["home-skills-training", "home-skills-training-secondary"].includes(id)
+  );
+  assert.deepEqual(
+    hotspots.map(({ area }) => area),
+    [
+      { left: 24.91, top: 25.18, width: 3.86, height: 6.36 },
+      { left: 21.75, top: 32.25, width: 3.46, height: 4.46 }
+    ]
+  );
+});
+
+test("五类更新后的二级页使用文字已烘焙的独立背景", () => {
+  for (const [target, background] of Object.entries(bakedIntroBackgrounds)) {
+    assert.equal(pages[target].background, background);
+    assert.equal(pages[target].contentBaked, true);
+  }
+
+  assert.equal(pages["video-surgery-review"].contentBaked, undefined);
+});
+
+test("左右整合入口保持全屏自动播放，阶段入口进入手动视频介绍页", () => {
   for (const target of ["video-robot-integration", "video-ui-integration"]) {
     assert.equal(pages[target].kind, "video");
   }
@@ -74,7 +127,11 @@ test("左右整合入口保持全屏自动播放，六个阶段入口进入手�
   for (const target of Object.values(expectedHomeTargets).slice(2)) {
     assert.equal(pages[target].kind, "video-intro");
     assert.equal(pages[target].returnOnSurface, true);
-    assert.match(pages[target].titleImage, /^\/assets\/medical\/video-intro-/);
+    if (pages[target].contentBaked) {
+      assert.equal(pages[target].titleImage, undefined);
+    } else {
+      assert.match(pages[target].titleImage, /^\/assets\/medical\/video-intro-/);
+    }
   }
 });
 
@@ -86,7 +143,7 @@ test("机器人功能整合使用指定的新版 COS 视频", () => {
   assert.equal(pages["video-ui-integration"].video, `${videoBaseUrl}/planning.mp4`);
 });
 
-test("五个视频介绍页使用腾讯云视频，技能培训使用封面图片", () => {
+test("六个视频介绍页使用腾讯云视频", () => {
   assert.deepEqual(
     {
       planning: pages["video-surgery-planning"].video,
@@ -101,12 +158,15 @@ test("五个视频介绍页使用腾讯云视频，技能培训使用封面图�
       review: `${videoBaseUrl}/3%E6%89%8B%E6%9C%AF%E5%A4%8D%E7%9B%98.mp4`
     }
   );
-  assert.equal(pages["video-skills-training"].video, undefined);
+  assert.equal(
+    pages["video-skills-training"].video,
+    `${videoBaseUrl}/%E6%B5%8B%E8%AF%95.mp4`
+  );
   assert.equal(
     pages["video-quality-control"].video,
     `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%86.mp4`
   );
-  assert.match(pages["video-skills-training"].cover, /skills-training/);
+  assert.equal(pages["video-skills-training"].cover, undefined);
   assert.equal(pages["video-quality-control"].cover, undefined);
 });
 

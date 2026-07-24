@@ -3,14 +3,23 @@ const videoBaseUrl =
   "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com";
 const videoIntroBackground = "/assets/medical/video-intro-background.jpg";
 
-const videoIntroPage = ({ label, titleImage, video, cover, copy }) => ({
-  kind: "video-intro",
+const videoIntroPage = ({
   label,
-  background: videoIntroBackground,
   titleImage,
   video,
   cover,
   copy,
+  background = videoIntroBackground,
+  contentBaked
+}) => ({
+  kind: "video-intro",
+  label,
+  background,
+  titleImage,
+  video,
+  cover,
+  copy,
+  contentBaked,
   returnOnSurface: true,
   hotspots: []
 });
@@ -61,7 +70,14 @@ export const pages = {
         label: "播放技能培训视频",
         action: "page",
         target: "video-skills-training",
-        area: area(19.38, 23.46, 9.155, 18.91)
+        area: area(24.91, 25.18, 3.86, 6.36)
+      },
+      {
+        id: "home-skills-training-secondary",
+        label: "播放技能培训视频（二）",
+        action: "page",
+        target: "video-skills-training-secondary",
+        area: area(21.75, 32.25, 3.46, 4.46)
       },
       {
         id: "home-surgery-planning",
@@ -244,43 +260,49 @@ export const pages = {
   "video-skills-training": {
     ...videoIntroPage({
       label: "术前-技能培训",
-      titleImage: "/assets/medical/video-intro-title-skills-training.png",
-      cover: "/assets/medical/video-intro-cover-skills-training.png"
+      video: `${videoBaseUrl}/%E6%B5%8B%E8%AF%95.mp4`,
+      background: "/assets/medical/secondary-pre-skills.jpg",
+      contentBaked: true
+    })
+  },
+  "video-skills-training-secondary": {
+    ...videoIntroPage({
+      label: "术前-技能培训",
+      video: `${videoBaseUrl}/planning.mp4`,
+      background: "/assets/medical/secondary-pre-skills.jpg",
+      contentBaked: true
     })
   },
   "video-surgery-planning": {
     ...videoIntroPage({
       label: "术前-手术规划",
-      titleImage: "/assets/medical/video-intro-title-surgery-planning.png",
       video: `${videoBaseUrl}/%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92%E6%96%B0.mp4`,
-      copy: [
-        "覆盖胸、肝、肾 三大领域",
-        "AI自动精准重建，看清每一个患者的解剖差异",
-        "5分钟快速交付",
-        "院内部署，数据直连CT或PACS",
-        "图文报告一键归档"
-      ]
+      background: "/assets/medical/secondary-pre-planning.jpg",
+      contentBaked: true
     })
   },
   "video-intraoperative-assistance": {
     ...videoIntroPage({
       label: "术中-辅助决策",
-      titleImage: "/assets/medical/video-intro-title-intraoperative-assistance.png",
-      video: `${videoBaseUrl}/2%E8%BE%85%E5%8A%A9%E5%86%B3%E7%AD%96.mp4`
+      video: `${videoBaseUrl}/2%E8%BE%85%E5%8A%A9%E5%86%B3%E7%AD%96.mp4`,
+      background: "/assets/medical/secondary-intra-assistance.jpg",
+      contentBaked: true
     })
   },
   "video-remote-teaching": {
     ...videoIntroPage({
       label: "术中-远程教学",
-      titleImage: "/assets/medical/video-intro-title-remote-teaching.png",
-      video: `${videoBaseUrl}/2%E8%BF%9C%E7%A8%8B%E6%95%99%E5%AD%A6.mp4`
+      video: `${videoBaseUrl}/2%E8%BF%9C%E7%A8%8B%E6%95%99%E5%AD%A6.mp4`,
+      background: "/assets/medical/secondary-intra-remote.jpg",
+      contentBaked: true
     })
   },
   "video-quality-control": {
     ...videoIntroPage({
       label: "术后-质控管理",
-      titleImage: "/assets/medical/video-intro-title-quality-control.png",
-      video: `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%86.mp4`
+      video: `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%86.mp4`,
+      background: "/assets/medical/secondary-post-quality.jpg",
+      contentBaked: true
     })
   },
   "video-surgery-review": {

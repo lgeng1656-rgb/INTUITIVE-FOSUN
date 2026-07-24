@@ -89,10 +89,11 @@ function VideoSurface({ page, onReady, onError }) {
 function VideoIntroSurface({ page, onReady, onError }) {
   const readyAssets = useRef(new Set());
   const hasReportedReady = useRef(false);
+  const requiredAssetCount = page.contentBaked ? 2 : 3;
 
   function markReady(name) {
     readyAssets.current.add(name);
-    if (readyAssets.current.size === 3 && !hasReportedReady.current) {
+    if (readyAssets.current.size === requiredAssetCount && !hasReportedReady.current) {
       hasReportedReady.current = true;
       onReady?.();
     }
@@ -112,20 +113,22 @@ function VideoIntroSurface({ page, onReady, onError }) {
         onLoad={(event) => markImageReady("background", event.currentTarget)}
         onError={onError}
       />
-      <div className="video-intro-copy">
-        {page.copy ? (
-          page.copy.map((line) => (
-            <span className="video-intro-copy-line" key={line}>
-              {line}
-            </span>
-          ))
-        ) : (
-          <>
-            <p>此处有内容此处有内容此处有内容。</p>
-            <p>此处有内容此处有内容此处有内容。</p>
-          </>
-        )}
-      </div>
+      {!page.contentBaked ? (
+        <div className="video-intro-copy">
+          {page.copy ? (
+            page.copy.map((line) => (
+              <span className="video-intro-copy-line" key={line}>
+                {line}
+              </span>
+            ))
+          ) : (
+            <>
+              <p>此处有内容此处有内容此处有内容。</p>
+              <p>此处有内容此处有内容此处有内容。</p>
+            </>
+          )}
+        </div>
+      ) : null}
       <div
         className="video-intro-media"
         onClick={(event) => event.stopPropagation()}
@@ -152,14 +155,16 @@ function VideoIntroSurface({ page, onReady, onError }) {
           />
         )}
       </div>
-      <img
-        className="video-intro-title"
-        src={page.titleImage}
-        alt={page.label}
-        draggable="false"
-        onLoad={(event) => markImageReady("title", event.currentTarget)}
-        onError={onError}
-      />
+      {!page.contentBaked ? (
+        <img
+          className="video-intro-title"
+          src={page.titleImage}
+          alt={page.label}
+          draggable="false"
+          onLoad={(event) => markImageReady("title", event.currentTarget)}
+          onError={onError}
+        />
+      ) : null}
     </div>
   );
 }

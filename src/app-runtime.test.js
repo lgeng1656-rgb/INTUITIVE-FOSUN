@@ -173,7 +173,8 @@ test("upper homepage layout follows the supplied screenshot coordinates", async 
   assert.match(styles, /\.home-integration-left\s*\{[^}]*left:\s*6\.26%/s);
   assert.match(styles, /\.home-timeline\s*\{[^}]*left:\s*19\.38%[^}]*top:\s*45\.18%[^}]*width:\s*61\.25%/s);
   assert.match(styles, /\.home-stage-copy\s*\{[^}]*top:\s*47\.45%[^}]*width:\s*18\.31%/s);
-  assert.match(stages, /area:\s*area\(19\.38,\s*23\.46,\s*9\.155,\s*18\.91\)/);
+  assert.match(stages, /area:\s*area\(24\.91,\s*25\.18,\s*3\.86,\s*6\.36\)/);
+  assert.match(stages, /area:\s*area\(21\.75,\s*32\.25,\s*3\.46,\s*4\.46\)/);
   assert.match(stages, /area:\s*area\(71\.165,\s*23\.46,\s*9\.155,\s*18\.91\)/);
   assert.match(stages, /area:\s*area\(5\.86,\s*33\.74,\s*7\.5,\s*17\)/);
 });
