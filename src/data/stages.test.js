@@ -16,6 +16,44 @@ const expectedHomeTargets = {
   "home-surgery-review": "video-surgery-review"
 };
 
+test("updated homepage navigation keeps the requested copy, order, and targets", () => {
+  assert.equal(
+    pages["video-surgery-planning"].video,
+    `${videoBaseUrl}/%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92%E6%96%B0.mp4`
+  );
+  assert.equal(pages["video-intraoperative-assistance"].label, "术中-辅助决策");
+
+  const postHotspots = pages.home.hotspots.filter(({ id }) =>
+    ["home-surgery-review", "home-quality-control"].includes(id)
+  );
+  assert.deepEqual(
+    postHotspots.map(({ id, target, area }) => ({ id, target, left: area.left })),
+    [
+      {
+        id: "home-surgery-review",
+        target: "video-surgery-review",
+        left: 62.01
+      },
+      {
+        id: "home-quality-control",
+        target: "video-quality-control",
+        left: 71.165
+      }
+    ]
+  );
+});
+
+test("surgery planning intro uses the supplied five-line copy only", () => {
+  assert.deepEqual(pages["video-surgery-planning"].copy, [
+    "覆盖胸、肝、肾 三大领域",
+    "AI自动精准重建，看清每一个患者的解剖差异",
+    "5分钟快速交付",
+    "院内部署，数据直连CT或PACS",
+    "图文报告一键归档"
+  ]);
+  assert.equal(pages["video-intraoperative-assistance"].copy, undefined);
+});
+
 test("首页提供两个整合视频入口和六个视频介绍入口", () => {
   assert.deepEqual(
     Object.fromEntries(
@@ -49,7 +87,7 @@ test("四个视频介绍页使用更新后的腾讯云视频，两个待定项�
       review: pages["video-surgery-review"].video
     },
     {
-      planning: `${videoBaseUrl}/1%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92.mp4`,
+      planning: `${videoBaseUrl}/%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92%E6%96%B0.mp4`,
       assistance: `${videoBaseUrl}/2%E6%9C%AF%E4%B8%AD%E8%BE%85%E5%8A%A9.mp4`,
       teaching: `${videoBaseUrl}/2%E8%BF%9C%E7%A8%8B%E6%95%99%E5%AD%A6.mp4`,
       review: `${videoBaseUrl}/3%E6%89%8B%E6%9C%AF%E5%A4%8D%E7%9B%98.mp4`

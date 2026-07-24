@@ -129,6 +129,11 @@ button {
   margin-top: min(3.5vw, 6.22vh);
 }
 
+.video-intro-copy-line {
+  display: block;
+  margin-bottom: min(0.55vw, 0.98vh);
+}
+
 .video-intro-media {
   position: absolute;
   left: 31.25%;
@@ -178,6 +183,7 @@ button {
 }
 
 .home-bottom-breath {
+  --breath-duration: 5s;
   position: absolute;
   left: 7.85%;
   top: 65.48%;
@@ -195,7 +201,8 @@ button {
     0 0 min(0.7vw, 1.24vh) rgba(220, 228, 255, 0.25),
     0 0 min(1.5vw, 2.67vh) rgba(154, 169, 255, 0.12),
     inset 0 0 min(0.8vw, 1.42vh) rgba(235, 240, 255, 0.08);
-  animation: home-bottom-breathe 5s ease-in-out infinite;
+  animation: home-bottom-breathe var(--breath-duration) ease-in-out infinite;
+  transition: opacity 240ms ease, box-shadow 240ms ease;
   pointer-events: none;
 }
 
