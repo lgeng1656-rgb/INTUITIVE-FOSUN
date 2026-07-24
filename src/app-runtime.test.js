@@ -197,17 +197,14 @@ test("首页保留阶段时间轴、标题和六个分类标签", async () => {
   }
 });
 
-test("bottom glass container reacts to microphone volume without moving its content", async () => {
+test("bottom glass container uses the default breathing animation without microphone access", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
 
   assert.match(source, /className="home-bottom-breath"/);
-  assert.match(source, /navigator\.mediaDevices\.getUserMedia/);
-  assert.match(source, /audio:\s*\{/);
-  assert.match(source, /--breath-duration/);
-  assert.match(source, /pointerdown/);
-  assert.match(styles, /\.home-bottom-breath\s*\{[\s\S]*--breath-duration:\s*5s;/);
-  assert.match(styles, /animation:\s*home-bottom-breathe var\(--breath-duration\) ease-in-out infinite;/);
+  assert.doesNotMatch(source, /getUserMedia|AudioContext|webkitAudioContext/);
+  assert.match(styles, /animation:\s*home-bottom-breathe 5s ease-in-out infinite;/);
+  assert.doesNotMatch(styles, /--breath-duration/);
   assert.match(styles, /@keyframes home-bottom-breathe/);
   assert.match(styles, /opacity:\s*0\.35/);
   assert.match(styles, /opacity:\s*0\.7/);

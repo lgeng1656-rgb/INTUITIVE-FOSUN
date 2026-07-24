@@ -1,8 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  getBreathDuration,
-  smoothAmbientVolume
-} from "./audio-reactive-breath.js";
 import { pages, stageButtons } from "./data/stages.js";
 import {
   createInitialState,
@@ -465,90 +461,9 @@ function HomeOrbitCanvas() {
   );
 }
 
-function useAmbientSoundBreathing(breathRef) {
-  useEffect(() => {
-    const breath = breathRef.current;
-    const mediaDevices = navigator.mediaDevices;
-    const AudioContextClass = window.AudioContext ?? window.webkitAudioContext;
-    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-    if (!breath || !mediaDevices?.getUserMedia || !AudioContextClass || reduceMotion) {
-      return undefined;
-    }
-
-    let audioContext;
-    let stream;
-    let animationFrame = 0;
-    let cancelled = false;
-    let smoothedVolume = 0;
-
-    const resumeAudio = () => {
-      if (audioContext?.state === "suspended") audioContext.resume().catch(() => undefined);
-    };
-
-    async function startListening() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false
-          }
-        });
-        if (cancelled) {
-          stream.getTracks().forEach((track) => track.stop());
-          return;
-        }
-
-        audioContext = new AudioContextClass();
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.65;
-        audioContext.createMediaStreamSource(stream).connect(analyser);
-        const samples = new Uint8Array(analyser.fftSize);
-
-        function updateBreathing() {
-          analyser.getByteTimeDomainData(samples);
-          let sumSquares = 0;
-          for (const sample of samples) {
-            const centered = (sample - 128) / 128;
-            sumSquares += centered * centered;
-          }
-          const volume = Math.sqrt(sumSquares / samples.length);
-          smoothedVolume = smoothAmbientVolume(smoothedVolume, volume);
-          breath.style.setProperty(
-            "--breath-duration",
-            `${getBreathDuration(smoothedVolume)}s`
-          );
-          animationFrame = window.requestAnimationFrame(updateBreathing);
-        }
-
-        updateBreathing();
-        resumeAudio();
-      } catch {
-        breath.style.removeProperty("--breath-duration");
-      }
-    }
-
-    window.addEventListener("pointerdown", resumeAudio, { passive: true });
-    startListening();
-
-    return () => {
-      cancelled = true;
-      window.removeEventListener("pointerdown", resumeAudio);
-      window.cancelAnimationFrame(animationFrame);
-      stream?.getTracks().forEach((track) => track.stop());
-      audioContext?.close().catch(() => undefined);
-    };
-  }, [breathRef]);
-}
-
 function HomeSurface({ onReady, onError }) {
   const readyImages = useRef(new Set());
   const hasReportedReady = useRef(false);
-  const breathRef = useRef(null);
-
-  useAmbientSoundBreathing(breathRef);
 
   function markReady(name, image) {
     decodeImage(image, () => {
@@ -579,7 +494,7 @@ function HomeSurface({ onReady, onError }) {
   return (
     <div className="home-page">
       {renderImage("background", "home-background", "")}
-      <div ref={breathRef} className="home-bottom-breath" aria-hidden="true" />
+      <div className="home-bottom-breath" aria-hidden="true" />
       {renderImage("pre", "home-scene home-scene-pre", "术前")}
       {renderImage("intra", "home-scene home-scene-intra", "术中")}
       {renderImage("post", "home-scene home-scene-post", "术后")}
