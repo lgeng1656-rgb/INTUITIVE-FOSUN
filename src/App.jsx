@@ -11,7 +11,6 @@ const STAGES = ["pre", "intra", "post"];
 const SECONDARY_BACKGROUND = "/assets/medical/secondary-background.jpg";
 const HOME_ASSETS = {
   background: "/assets/medical/home-background.jpg",
-  bottom: "/assets/medical/home-bottom.png",
   pre: "/assets/medical/home-pre.png",
   intra: "/assets/medical/home-intra.png",
   post: "/assets/medical/home-post.png",
@@ -495,7 +494,7 @@ function HomeSurface({ onReady, onError }) {
   return (
     <div className="home-page">
       {renderImage("background", "home-background", "")}
-      {renderImage("bottom", "home-bottom-breath", "")}
+      <div className="home-bottom-breath" aria-hidden="true" />
       {renderImage("pre", "home-scene home-scene-pre", "术前")}
       {renderImage("intra", "home-scene home-scene-intra", "术中")}
       {renderImage("post", "home-scene home-scene-post", "术后")}

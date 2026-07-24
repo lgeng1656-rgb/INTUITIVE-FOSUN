@@ -188,7 +188,6 @@ button {
   top: 65.48%;
   width: 84.3%;
   height: 24.25%;
-  object-fit: fill;
   border: min(0.08vw, 0.14vh) solid rgba(232, 238, 255, 0.96);
   border-radius: min(2.55vw, 4.53vh);
   background: linear-gradient(
