@@ -38,6 +38,26 @@ test("embedded video pages use a baked background and keep video clicks from ret
   assert.match(styles, /\.embedded-video-media\s*\{/);
 });
 
+test("all video surfaces autoplay muted and keep native playback controls", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+
+  for (const className of [
+    "video-player",
+    "video-intro-player",
+    "embedded-video-player"
+  ]) {
+    const videoTag = source.match(
+      new RegExp(`<video[\\s\\S]*?className="${className}"[\\s\\S]*?\\/>`)
+    )?.[0];
+
+    assert.ok(videoTag, `missing ${className} video element`);
+    assert.match(videoTag, /\bautoPlay\b/);
+    assert.match(videoTag, /\bmuted\b/);
+    assert.match(videoTag, /\bcontrols\b/);
+    assert.match(videoTag, /\bplaysInline\b/);
+  }
+});
+
 test("homepage uses the supplied center and bottom artwork while keeping the orbit canvas", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
