@@ -5,222 +5,208 @@ import { pages, stageButtons } from "./stages.js";
 const videoBaseUrl =
   "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com";
 
-const expectedHomeTargets = {
-  "home-robot-integration": "video-robot-integration",
-  "home-ui-integration": "video-ui-integration",
-  "home-skills-training": "video-skills-training",
-  "home-skills-training-secondary": "video-skills-training-secondary",
-  "home-surgery-planning": "video-surgery-planning",
-  "home-intraoperative-assistance": "video-intraoperative-assistance",
-  "home-remote-teaching": "video-remote-teaching",
-  "home-quality-control": "video-quality-control",
-  "home-surgery-review": "video-surgery-review"
-};
-
-const bakedIntroBackgrounds = {
-  "video-skills-training": "/assets/medical/secondary-pre-skills.jpg",
-  "video-skills-training-secondary": "/assets/medical/secondary-pre-skills.jpg",
-  "video-surgery-planning": "/assets/medical/secondary-pre-planning.jpg",
-  "video-intraoperative-assistance": "/assets/medical/secondary-intra-assistance.jpg",
-  "video-remote-teaching": "/assets/medical/secondary-intra-remote.jpg",
-  "video-quality-control": "/assets/medical/secondary-post-quality.jpg"
-};
-
-test("updated homepage navigation keeps the requested copy, order, and targets", () => {
-  assert.equal(
-    pages["video-surgery-planning"].video,
-    `${videoBaseUrl}/%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92%E6%96%B0.mp4`
-  );
-  assert.equal(pages["video-intraoperative-assistance"].label, "术中-辅助决策");
-
-  const postHotspots = pages.home.hotspots.filter(({ id }) =>
-    ["home-surgery-review", "home-quality-control"].includes(id)
-  );
+test("首页阶段画面和文字区域进入三个阶段放大页", () => {
   assert.deepEqual(
-    postHotspots.map(({ id, target, area }) => ({ id, target, left: area.left })),
+    pages.home.hotspots
+      .filter(({ action }) => action === "stage")
+      .map(({ id, target, area }) => ({ id, target, area })),
     [
       {
-        id: "home-surgery-review",
-        target: "video-surgery-review",
-        left: 62.01
+        id: "home-pre",
+        target: "pre",
+        area: { left: 19.38, top: 23.46, width: 18.31, height: 35.5 }
       },
       {
-        id: "home-quality-control",
-        target: "video-quality-control",
-        left: 71.165
+        id: "home-intra",
+        target: "intra",
+        area: { left: 40.42, top: 23.46, width: 18.31, height: 35.5 }
+      },
+      {
+        id: "home-post",
+        target: "post",
+        area: { left: 62.01, top: 23.46, width: 18.31, height: 35.5 }
       }
     ]
   );
 });
 
-test("surgery planning intro uses the copy baked into its background", () => {
-  assert.equal(pages["video-surgery-planning"].copy, undefined);
-  assert.equal(pages["video-surgery-planning"].contentBaked, true);
-  assert.equal(pages["video-intraoperative-assistance"].copy, undefined);
-});
+test("首页保留左右两个整合入口", () => {
+  const integrations = pages.home.hotspots
+    .filter(({ id }) => id.includes("integration"))
+    .map(({ id, target }) => ({ id, target }));
 
-test("首页提供两个整合视频入口和六个视频介绍入口", () => {
-  assert.deepEqual(
-    Object.fromEntries(
-      pages.home.hotspots.map(({ id, action, target }) => {
-        assert.equal(action, "page");
-        return [id, target];
-      })
-    ),
-    expectedHomeTargets
-  );
-});
-
-test("术前左侧两个屏幕进入独立的技能培训页并播放各自视频", () => {
-  const targets = [
-    expectedHomeTargets["home-skills-training"],
-    expectedHomeTargets["home-skills-training-secondary"]
-  ];
-
-  assert.notEqual(targets[0], targets[1]);
-  assert.deepEqual(
-    targets.map((target) => ({
-      kind: pages[target].kind,
-      label: pages[target].label,
-      video: pages[target].video
-    })),
-    [
-      {
-        kind: "video-intro",
-        label: "术前-技能培训",
-        video: `${videoBaseUrl}/%E6%B5%8B%E8%AF%95.mp4`
-      },
-      {
-        kind: "video-intro",
-        label: "术前-技能培训",
-        video: `${videoBaseUrl}/planning.mp4`
-      }
-    ]
-  );
-
-  const hotspots = pages.home.hotspots.filter(({ id }) =>
-    ["home-skills-training", "home-skills-training-secondary"].includes(id)
-  );
-  assert.deepEqual(
-    hotspots.map(({ area }) => area),
-    [
-      { left: 24.91, top: 25.18, width: 3.86, height: 6.36 },
-      { left: 21.75, top: 32.25, width: 3.46, height: 4.46 }
-    ]
-  );
-});
-
-test("五类更新后的二级页使用文字已烘焙的独立背景", () => {
-  for (const [target, background] of Object.entries(bakedIntroBackgrounds)) {
-    assert.equal(pages[target].background, background);
-    assert.equal(pages[target].contentBaked, true);
-  }
-
-  assert.equal(pages["video-surgery-review"].contentBaked, undefined);
-});
-
-test("左右整合入口保持全屏自动播放，阶段入口进入手动视频介绍页", () => {
-  for (const target of ["video-robot-integration", "video-ui-integration"]) {
-    assert.equal(pages[target].kind, "video");
-  }
-
-  for (const target of Object.values(expectedHomeTargets).slice(2)) {
-    assert.equal(pages[target].kind, "video-intro");
-    assert.equal(pages[target].returnOnSurface, true);
-    if (pages[target].contentBaked) {
-      assert.equal(pages[target].titleImage, undefined);
-    } else {
-      assert.match(pages[target].titleImage, /^\/assets\/medical\/video-intro-/);
+  assert.deepEqual(integrations, [
+    {
+      id: "home-robot-integration",
+      target: "video-robot-integration"
+    },
+    {
+      id: "home-ui-integration",
+      target: "video-ui-integration"
     }
+  ]);
+});
+
+test("阶段放大页使用亮版画面并按左右两半进入对应三级页", () => {
+  assert.deepEqual(
+    ["pre", "intra", "post"].map((stage) => {
+      const page = pages[`${stage}-overview`];
+      return {
+        stage,
+        kind: page.kind,
+        returnOnSurface: page.returnOnSurface,
+        idleImage: page.idleImage,
+        image: page.image,
+        targets: page.hotspots.map(({ target }) => target),
+        areas: page.hotspots.map(({ area }) => area),
+        homeButton: page.homeButton
+      };
+    }),
+    [
+      {
+        stage: "pre",
+        kind: "stage-overview",
+        returnOnSurface: false,
+        idleImage: "/assets/medical/stage-pre-idle-20260729.jpg",
+        image: "/assets/medical/stage-pre-active-20260729.jpg",
+        targets: ["video-skills-training", "video-surgery-planning"],
+        areas: [
+          { left: 0, top: 0, width: 50, height: 100 },
+          { left: 50, top: 0, width: 50, height: 100 }
+        ],
+        homeButton: { left: 91, top: 1, width: 8, height: 12 }
+      },
+      {
+        stage: "intra",
+        kind: "stage-overview",
+        returnOnSurface: false,
+        idleImage: "/assets/medical/stage-intra-idle-20260729.jpg",
+        image: "/assets/medical/stage-intra-active-20260729.jpg",
+        targets: ["video-intraoperative-assistance", "video-remote-teaching"],
+        areas: [
+          { left: 0, top: 0, width: 50, height: 100 },
+          { left: 50, top: 0, width: 50, height: 100 }
+        ],
+        homeButton: { left: 91, top: 1, width: 8, height: 12 }
+      },
+      {
+        stage: "post",
+        kind: "stage-overview",
+        returnOnSurface: false,
+        idleImage: "/assets/medical/stage-post-idle-20260729.jpg",
+        image: "/assets/medical/stage-post-active-20260729.jpg",
+        targets: ["video-surgery-review", "video-quality-control"],
+        areas: [
+          { left: 0, top: 0, width: 50, height: 100 },
+          { left: 50, top: 0, width: 50, height: 100 }
+        ],
+        homeButton: { left: 91, top: 1, width: 8, height: 12 }
+      }
+    ]
+  );
+});
+
+test("六个阶段三级页和临床应用整合页使用整图背景与右侧视频", () => {
+  const expected = {
+    "video-skills-training": "/assets/medical/detail-pre-skills-20260729.jpg",
+    "video-surgery-planning": "/assets/medical/detail-pre-planning-20260729.jpg",
+    "video-intraoperative-assistance": "/assets/medical/detail-intra-assistance-20260729.jpg",
+    "video-remote-teaching": "/assets/medical/detail-intra-remote-20260729.jpg",
+    "video-surgery-review": "/assets/medical/detail-post-review-20260729.jpg",
+    "video-quality-control": "/assets/medical/detail-post-quality-20260729.jpg",
+    "video-robot-integration": "/assets/medical/detail-clinical-integration-20260729.jpg"
+  };
+
+  for (const [id, background] of Object.entries(expected)) {
+    assert.equal(pages[id].kind, "embedded-video");
+    assert.equal(pages[id].background, background);
+    assert.equal(pages[id].returnOnSurface, true);
+    assert.deepEqual(pages[id].mediaArea, {
+      left: 31,
+      top: 15.5,
+      width: 68,
+      height: 68.5
+    });
+    assert.match(pages[id].video, /^https:\/\/intuitive-fosun-videos-/);
   }
 });
 
-test("机器人功能整合使用指定的新版 COS 视频", () => {
-  assert.equal(
-    pages["video-robot-integration"].video,
-    `${videoBaseUrl}/%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%8A%9F%E8%83%BD%E6%95%B4%E5%90%88.mp4`
-  );
-  assert.equal(pages["video-ui-integration"].video, `${videoBaseUrl}/planning.mp4`);
-});
-
-test("六个视频介绍页使用腾讯云视频", () => {
+test("阶段三级页保持指定腾讯 COS 视频映射", () => {
   assert.deepEqual(
     {
+      skills: pages["video-skills-training"].video,
       planning: pages["video-surgery-planning"].video,
       assistance: pages["video-intraoperative-assistance"].video,
       teaching: pages["video-remote-teaching"].video,
-      review: pages["video-surgery-review"].video
+      review: pages["video-surgery-review"].video,
+      quality: pages["video-quality-control"].video
     },
     {
+      skills: `${videoBaseUrl}/%E6%8A%80%E8%83%BD%E5%9F%B9%E8%AE%AD0729%E6%9B%B4%E6%96%B0.mp4`,
       planning: `${videoBaseUrl}/%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92%E6%96%B0.mp4`,
       assistance: `${videoBaseUrl}/2%E8%BE%85%E5%8A%A9%E5%86%B3%E7%AD%96.mp4`,
       teaching: `${videoBaseUrl}/2%E8%BF%9C%E7%A8%8B%E6%95%99%E5%AD%A6.mp4`,
-      review: `${videoBaseUrl}/3%E6%89%8B%E6%9C%AF%E5%A4%8D%E7%9B%98.mp4`
+      review: `${videoBaseUrl}/3%E6%89%8B%E6%9C%AF%E5%A4%8D%E7%9B%980727.mp4`,
+      quality: `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%86.mp4`
     }
   );
-  assert.equal(
-    pages["video-skills-training"].video,
-    `${videoBaseUrl}/%E6%B5%8B%E8%AF%95.mp4`
-  );
-  assert.equal(
-    pages["video-quality-control"].video,
-    `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%86.mp4`
-  );
-  assert.equal(pages["video-skills-training"].cover, undefined);
-  assert.equal(pages["video-quality-control"].cover, undefined);
 });
 
-test("术前流程映射到技能培训、手术规划和规划视频", () => {
+test("首页只保留一个技能培训视频入口", () => {
+  const skillHotspots = pages.home.hotspots.filter(({ id }) =>
+    id.startsWith("home-skills-training")
+  );
+
   assert.deepEqual(
-    pages["pre-overview"].hotspots.map(({ target }) => target),
-    ["pre-training", "pre-planning"]
+    skillHotspots.map(({ id, target }) => ({ id, target })),
+    [
+      {
+        id: "home-skills-training",
+        target: "video-skills-training"
+      }
+    ]
   );
-  assert.equal(
-    pages["pre-planning"].hotspots[0].target,
-    "video-planning"
-  );
+  assert.equal(pages["video-skills-training-secondary"], undefined);
 });
 
-test("术中和术后入口映射到流程图指定内容", () => {
-  assert.deepEqual(
-    pages["intra-overview"].hotspots.map(({ target }) => target),
-    ["video-navigation", "intra-remote"]
-  );
-  assert.deepEqual(
-    pages["post-overview"].hotspots.map(({ target }) => target),
-    ["video-review", "video-analysis"]
+test("临床应用功能整合进入二级页面并使用指定视频", () => {
+  assert.equal(pages["video-robot-integration"].kind, "embedded-video");
+  assert.equal(
+    pages["video-robot-integration"].video,
+    `${videoBaseUrl}/%E4%B8%B4%E5%BA%8A%E5%BA%94%E7%94%A8%E5%8A%9F%E8%83%BD%E6%95%B4%E5%90%88.mp4`
   );
 });
 
-test("三个阶段按钮都有点亮和未点亮素材", () => {
+test("三个旧阶段按钮素材仍被保留用于兼容现有页面", () => {
   for (const stage of ["pre", "intra", "post"]) {
     assert.match(stageButtons[stage].idle, /^\/assets\/medical\//);
     assert.match(stageButtons[stage].active, /^\/assets\/medical\//);
   }
 });
 
-test("四个视频入口使用固定 MP4 文件名", () => {
-  assert.deepEqual(
-    [
-      pages["video-planning"].video,
-      pages["video-navigation"].video,
-      pages["video-review"].video,
-      pages["video-analysis"].video
-    ],
-    [
-      "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com/planning.mp4",
-      "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com/navigation.mp4",
-      "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com/review.mp4",
-      "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com/analysis.mp4"
-    ]
-  );
+test("阶段二级页面只能通过右上角按钮返回首页", () => {
+  for (const stage of ["pre", "intra", "post"]) {
+    const page = pages[`${stage}-overview`];
+    assert.equal(page.returnOnSurface, false);
+    assert.deepEqual(page.homeButton, {
+      left: 91,
+      top: 1,
+      width: 8,
+      height: 12
+    });
+  }
 });
 
-test("除首页外的每个图片页面都能点击空白区域返回上一页", () => {
-  const imagePages = Object.entries(pages)
-    .filter(([id, page]) => id !== "home" && page.kind !== "video")
+test("除阶段二级页外的交互图片页可通过空白区域返回上级", () => {
+  const interactivePages = Object.entries(pages)
+    .filter(
+      ([id, page]) =>
+        id !== "home" &&
+        page.kind !== "video" &&
+        page.kind !== "stage-overview"
+    )
     .map(([, page]) => page);
 
-  assert.ok(imagePages.length > 0);
-  assert.ok(imagePages.every((page) => page.returnOnSurface === true));
+  assert.ok(interactivePages.length > 0);
+  assert.ok(interactivePages.every((page) => page.returnOnSurface === true));
 });

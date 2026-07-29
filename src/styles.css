@@ -92,6 +92,77 @@ button {
   height: 100%;
 }
 
+.embedded-video-page,
+.embedded-video-background,
+.stage-overview-page,
+.stage-overview-base,
+.stage-overview-glow,
+.home-center {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.embedded-video-page,
+.stage-overview-page {
+  overflow: hidden;
+}
+
+.embedded-video-background,
+.stage-overview-base,
+.stage-overview-glow,
+.home-center {
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.embedded-video-media {
+  position: absolute;
+  overflow: hidden;
+  border: min(0.12vw, 0.21vh) solid rgba(85, 225, 255, 0.94);
+  background: #020817;
+  box-shadow:
+    0 0 min(0.7vw, 1.24vh) rgba(80, 220, 255, 0.52),
+    0 0 min(1.6vw, 2.84vh) rgba(70, 115, 255, 0.3);
+  cursor: default;
+}
+
+.embedded-video-player {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.stage-overview-glow {
+  opacity: 0.14;
+  animation: stage-image-breathe 1.8s ease-in-out infinite;
+}
+
+.stage-home-button {
+  position: absolute;
+  z-index: 20;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+@keyframes stage-image-breathe {
+  0%,
+  100% {
+    opacity: 0.14;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
 .video-intro-page {
   overflow: hidden;
   background: #3044f4;
@@ -182,25 +253,44 @@ button {
   background: #3445f4;
 }
 
+.home-center {
+  z-index: 1;
+}
+
+.home-bottom {
+  position: absolute;
+  left: 7.85%;
+  top: 65.48%;
+  z-index: 2;
+  display: block;
+  width: 84.3%;
+  height: 24.25%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.home-scene,
+.home-timeline,
+.home-stage-copy {
+  display: none;
+}
+
 .home-bottom-breath {
   position: absolute;
   left: 7.85%;
   top: 65.48%;
   width: 84.3%;
   height: 24.25%;
-  border: min(0.08vw, 0.14vh) solid rgba(232, 238, 255, 0.96);
+  border: min(0.08vw, 0.14vh) solid transparent;
   border-radius: min(2.55vw, 4.53vh);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.045),
-    rgba(205, 217, 255, 0.018)
-  );
+  background: transparent;
   opacity: 0.35;
   box-shadow:
     0 0 min(0.7vw, 1.24vh) rgba(220, 228, 255, 0.25),
     0 0 min(1.5vw, 2.67vh) rgba(154, 169, 255, 0.12),
     inset 0 0 min(0.8vw, 1.42vh) rgba(235, 240, 255, 0.08);
   animation: home-bottom-breathe 5s ease-in-out infinite;
+  z-index: 3;
   pointer-events: none;
 }
 
@@ -251,6 +341,7 @@ button {
 }
 
 .home-integration {
+  z-index: 4;
   top: 33.89%;
   height: 12.622%;
   object-fit: contain;
@@ -346,6 +437,7 @@ button {
 }
 
 .home-orbit {
+  z-index: 5;
   left: 0;
   width: 100%;
   height: 13.3333%;
@@ -456,6 +548,11 @@ button {
   .home-bottom-breath {
     animation: none;
     opacity: 0.52;
+  }
+
+  .stage-overview-glow {
+    animation: none;
+    opacity: 1;
   }
 
 }
