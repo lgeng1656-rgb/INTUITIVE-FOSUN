@@ -78,6 +78,8 @@ function VideoSurface({ page, onReady, onError }) {
         className="video-player"
         src={page.video}
         autoPlay
+        muted
+        controls
         playsInline
         preload="auto"
         aria-label={page.label}
@@ -140,6 +142,8 @@ function VideoIntroSurface({ page, onReady, onError }) {
           <video
             className="video-intro-player"
             src={page.video}
+            autoPlay
+            muted
             controls
             playsInline
             preload="metadata"
@@ -202,6 +206,8 @@ function EmbeddedVideoSurface({ page, onReady, onError }) {
         <video
           className="embedded-video-player"
           src={page.video}
+          autoPlay
+          muted
           controls
           playsInline
           preload="metadata"
