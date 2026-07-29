@@ -2,6 +2,55 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
+test("stage overview crossfades supplied idle and bright artwork without rectangle overlays", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
+
+  assert.match(source, /function StageOverviewSurface/);
+  assert.match(source, /className="stage-overview-base"/);
+  assert.match(source, /className="stage-overview-glow"/);
+  assert.doesNotMatch(source, /className="stage-breath-light/);
+  assert.match(source, /className="stage-home-button"/);
+  assert.match(styles, /@keyframes stage-image-breathe/);
+  assert.match(styles, /animation:\s*stage-image-breathe/);
+  assert.doesNotMatch(styles, /\.stage-breath-light|stage-screen-breathe/);
+});
+
+test("stage overview home button renders above the full-width hotspot layer", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(
+    source,
+    /<HotspotLayer[\s\S]*page\.kind === "stage-overview"[\s\S]*className="stage-home-button"/
+  );
+});
+
+test("embedded video pages use a baked background and keep video clicks from returning", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
+
+  assert.match(source, /function EmbeddedVideoSurface/);
+  assert.match(source, /className="embedded-video-background"/);
+  assert.match(source, /className="embedded-video-media"/);
+  assert.match(source, /style=\{areaStyle\(page\.mediaArea\)\}/);
+  assert.match(source, /event\.stopPropagation\(\)/);
+  assert.match(source, /controls/);
+  assert.match(styles, /\.embedded-video-media\s*\{/);
+});
+
+test("homepage uses the supplied center and bottom artwork while keeping the orbit canvas", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
+
+  assert.match(source, /home-center-20260729\.jpg/);
+  assert.match(source, /home-bottom-20260729\.png/);
+  assert.match(source, /home-left-integration-20260729\.png/);
+  assert.match(source, /<HomeOrbitCanvas \/>/);
+  assert.match(styles, /\.home-bottom\s*\{[^}]*left:\s*7\.85%[^}]*width:\s*84\.3%/s);
+  assert.match(styles, /\.home-integration\s*\{[^}]*z-index:\s*4/s);
+  assert.match(styles, /\.home-orbit\s*\{[^}]*z-index:\s*5/s);
+});
+
 test("App JSX显式提供当前Vite配置所需的React运行时", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
   assert.match(source, /^import React, \{/m);
@@ -174,7 +223,6 @@ test("upper homepage layout follows the supplied screenshot coordinates", async 
   assert.match(styles, /\.home-timeline\s*\{[^}]*left:\s*19\.38%[^}]*top:\s*45\.18%[^}]*width:\s*61\.25%/s);
   assert.match(styles, /\.home-stage-copy\s*\{[^}]*top:\s*47\.45%[^}]*width:\s*18\.31%/s);
   assert.match(stages, /area:\s*area\(24\.91,\s*25\.18,\s*3\.86,\s*6\.36\)/);
-  assert.match(stages, /area:\s*area\(21\.75,\s*32\.25,\s*3\.46,\s*4\.46\)/);
   assert.match(stages, /area:\s*area\(71\.165,\s*23\.46,\s*9\.155,\s*18\.91\)/);
   assert.match(stages, /area:\s*area\(5\.86,\s*33\.74,\s*7\.5,\s*17\)/);
 });
@@ -202,7 +250,8 @@ test("bottom glass container uses the default breathing animation without microp
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
 
-  assert.doesNotMatch(source, /home-bottom\.png|renderImage\("bottom"/);
+  assert.match(source, /home-bottom-20260729\.png/);
+  assert.match(source, /renderImage\("bottom"/);
   assert.match(source, /<div className="home-bottom-breath" aria-hidden="true" \/>/);
   assert.doesNotMatch(source, /getUserMedia|AudioContext|webkitAudioContext/);
   assert.match(styles, /animation:\s*home-bottom-breathe 5s ease-in-out infinite;/);

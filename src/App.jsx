@@ -11,10 +11,12 @@ const STAGES = ["pre", "intra", "post"];
 const SECONDARY_BACKGROUND = "/assets/medical/secondary-background.jpg";
 const HOME_ASSETS = {
   background: "/assets/medical/home-background.jpg",
+  center: "/assets/medical/home-center-20260729.jpg",
+  bottom: "/assets/medical/home-bottom-20260729.png",
   pre: "/assets/medical/home-pre.png",
   intra: "/assets/medical/home-intra.png",
   post: "/assets/medical/home-post.png",
-  leftIntegration: "/assets/medical/home-left-integration.png",
+  leftIntegration: "/assets/medical/home-left-integration-20260729.png",
   rightIntegration: "/assets/medical/home-right-integration.png"
 };
 const CRITICAL_IMAGE_ASSETS = [
@@ -89,7 +91,8 @@ function VideoSurface({ page, onReady, onError }) {
 function VideoIntroSurface({ page, onReady, onError }) {
   const readyAssets = useRef(new Set());
   const hasReportedReady = useRef(false);
-  const requiredAssetCount = page.contentBaked ? 2 : 3;
+  const hasMedia = Boolean(page.video || page.cover);
+  const requiredAssetCount = 1 + Number(!page.contentBaked) + Number(hasMedia);
 
   function markReady(name) {
     readyAssets.current.add(name);
@@ -144,7 +147,7 @@ function VideoIntroSurface({ page, onReady, onError }) {
             onLoadedMetadata={() => markReady("media")}
             onError={onError}
           />
-        ) : (
+        ) : page.cover ? (
           <img
             className="video-intro-cover"
             src={page.cover}
@@ -153,7 +156,7 @@ function VideoIntroSurface({ page, onReady, onError }) {
             onLoad={(event) => markImageReady("media", event.currentTarget)}
             onError={onError}
           />
-        )}
+        ) : null}
       </div>
       {!page.contentBaked ? (
         <img
@@ -165,6 +168,87 @@ function VideoIntroSurface({ page, onReady, onError }) {
           onError={onError}
         />
       ) : null}
+    </div>
+  );
+}
+
+function EmbeddedVideoSurface({ page, onReady, onError }) {
+  const readyAssets = useRef(new Set());
+  const hasReportedReady = useRef(false);
+
+  function markReady(name) {
+    readyAssets.current.add(name);
+    if (readyAssets.current.size === 2 && !hasReportedReady.current) {
+      hasReportedReady.current = true;
+      onReady?.();
+    }
+  }
+
+  return (
+    <div className="embedded-video-page">
+      <img
+        className="embedded-video-background"
+        src={page.background}
+        alt=""
+        draggable="false"
+        onLoad={(event) => decodeImage(event.currentTarget, () => markReady("background"))}
+        onError={onError}
+      />
+      <div
+        className="embedded-video-media"
+        style={areaStyle(page.mediaArea)}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <video
+          className="embedded-video-player"
+          src={page.video}
+          controls
+          playsInline
+          preload="metadata"
+          aria-label={`${page.label}视频`}
+          onLoadedMetadata={() => markReady("media")}
+          onError={onError}
+        />
+      </div>
+    </div>
+  );
+}
+
+function StageOverviewSurface({ page, onReady, onError }) {
+  const readyImages = useRef(new Set());
+  const hasReportedReady = useRef(false);
+
+  const markReady = (imageName) => {
+    readyImages.current.add(imageName);
+    if (readyImages.current.size === 2 && !hasReportedReady.current) {
+      hasReportedReady.current = true;
+      onReady();
+    }
+  };
+
+  return (
+    <div className={`stage-overview-page stage-overview-${page.stage}`}>
+      <img
+        className="stage-overview-base"
+        src={page.idleImage}
+        alt={page.label}
+        draggable="false"
+        onLoad={(event) =>
+          decodeImage(event.currentTarget, () => markReady("base"))
+        }
+        onError={onError}
+      />
+      <img
+        className="stage-overview-glow"
+        src={page.image}
+        alt=""
+        aria-hidden="true"
+        draggable="false"
+        onLoad={(event) =>
+          decodeImage(event.currentTarget, () => markReady("glow"))
+        }
+        onError={onError}
+      />
     </div>
   );
 }
@@ -499,6 +583,8 @@ function HomeSurface({ onReady, onError }) {
   return (
     <div className="home-page">
       {renderImage("background", "home-background", "")}
+      {renderImage("center", "home-center", "")}
+      {renderImage("bottom", "home-bottom", "")}
       <div className="home-bottom-breath" aria-hidden="true" />
       {renderImage("pre", "home-scene home-scene-pre", "术前")}
       {renderImage("intra", "home-scene home-scene-intra", "术中")}
@@ -582,7 +668,7 @@ function CompositeSurface({ page, onReady, onError }) {
   );
 }
 
-function PageSurface({ page, onReady, onError }) {
+function PageSurface({ page, onReady, onError, onGoHome }) {
   if (page.kind === "home") {
     return <HomeSurface onReady={onReady} onError={onError} />;
   }
@@ -593,6 +679,20 @@ function PageSurface({ page, onReady, onError }) {
 
   if (page.kind === "video-intro") {
     return <VideoIntroSurface page={page} onReady={onReady} onError={onError} />;
+  }
+
+  if (page.kind === "embedded-video") {
+    return <EmbeddedVideoSurface page={page} onReady={onReady} onError={onError} />;
+  }
+
+  if (page.kind === "stage-overview") {
+    return (
+      <StageOverviewSurface
+        page={page}
+        onReady={onReady}
+        onError={onError}
+      />
+    );
   }
 
   if (page.kind === "composite") {
@@ -641,15 +741,20 @@ function StageSelector({ currentStage, disabled = false, mode, onSelect }) {
   );
 }
 
-function VisualScene({ className = "", navigation, onError, onReady, onSelectStage }) {
+function VisualScene({ className = "", navigation, onError, onGoHome, onReady, onSelectStage }) {
   const page = pages[navigation.current];
   const isInactive =
     className.includes("transition-cover") || className.includes("retained-scene");
 
   return (
     <div className={`visual-scene ${className}`} aria-hidden={isInactive || undefined}>
-      <PageSurface page={page} onReady={onReady} onError={onError} />
-      {page.stage && page.kind !== "video" ? (
+      <PageSurface
+        page={page}
+        onReady={onReady}
+        onError={onError}
+        onGoHome={isInactive ? undefined : onGoHome}
+      />
+      {page.stage && page.buttons && page.kind !== "video" ? (
         <StageSelector
           currentStage={page.stage}
           disabled={isInactive}
@@ -812,6 +917,9 @@ export default function App() {
           onError={
             outgoing ? () => cancelTransition(outgoing.id) : undefined
           }
+          onGoHome={() =>
+            startTransition(() => createInitialState())
+          }
           onSelectStage={(stage) =>
             startTransition((current) => openStage(current, stage))
           }
@@ -836,6 +944,18 @@ export default function App() {
           <HotspotLayer
             hotspots={page.hotspots}
             onActivate={handleHotspot}
+          />
+        ) : null}
+        {!outgoing && page.kind === "stage-overview" ? (
+          <button
+            type="button"
+            className="stage-home-button"
+            style={areaStyle(page.homeButton)}
+            aria-label="返回首页"
+            onClick={(event) => {
+              event.stopPropagation();
+              startTransition(() => createInitialState());
+            }}
           />
         ) : null}
       </section>
