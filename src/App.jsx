@@ -8,30 +8,24 @@ import {
 } from "./navigation.js";
 
 const STAGES = ["pre", "intra", "post"];
-const SECONDARY_BACKGROUND = "/assets/medical/secondary-background.jpg";
+const SECONDARY_BACKGROUND = "/assets/medical/secondary-background.webp";
+const RETURN_BUTTON_IMAGE = "/assets/medical/return-button.png";
+const DEFAULT_RETURN_BUTTON_AREA = {
+  left: 2.71,
+  top: 88.43,
+  width: 4.43,
+  height: 7.87
+};
 const HOME_ASSETS = {
-  background: "/assets/medical/home-background.jpg",
-  center: "/assets/medical/home-center-20260729.jpg",
-  bottom: "/assets/medical/home-bottom-20260729.png",
-  pre: "/assets/medical/home-pre.png",
-  intra: "/assets/medical/home-intra.png",
-  post: "/assets/medical/home-post.png",
+  background: "/assets/medical/home-background.webp",
+  center: "/assets/medical/home-center-20260730.webp",
+  bottom: "/assets/medical/home-bottom-20260729.webp",
+  pre: "/assets/medical/home-pre.webp",
+  intra: "/assets/medical/home-intra.webp",
+  post: "/assets/medical/home-post.webp",
   leftIntegration: "/assets/medical/home-left-integration-20260729.png",
   rightIntegration: "/assets/medical/home-right-integration.png"
 };
-const CRITICAL_IMAGE_ASSETS = [
-  ...Object.values(HOME_ASSETS),
-  SECONDARY_BACKGROUND,
-  "/assets/medical/pre-overview.jpg",
-  "/assets/medical/intra-overview.jpg",
-  "/assets/medical/post-overview.jpg",
-  ...Object.values(stageButtons).flatMap((button) => [button.idle, button.active])
-];
-const DETAIL_IMAGE_ASSETS = Object.values(pages)
-  .flatMap((page) => [page.image, page.background, page.titleImage, page.cover])
-  .filter(Boolean)
-  .filter((src) => !CRITICAL_IMAGE_ASSETS.includes(src));
-
 function areaStyle(area) {
   return {
     left: `${area.left}%`,
@@ -44,15 +38,6 @@ function areaStyle(area) {
 function decodeImage(image, onReady) {
   const decoding = typeof image.decode === "function" ? image.decode() : Promise.resolve();
   decoding.catch(() => undefined).then(onReady);
-}
-
-function preloadImage(src) {
-  return new Promise((resolve) => {
-    const image = new Image();
-    image.onload = () => decodeImage(image, resolve);
-    image.onerror = resolve;
-    image.src = src;
-  });
 }
 
 function VideoSurface({ page, onReady, onError }) {
@@ -223,10 +208,11 @@ function EmbeddedVideoSurface({ page, onReady, onError }) {
 function StageOverviewSurface({ page, onReady, onError }) {
   const readyImages = useRef(new Set());
   const hasReportedReady = useRef(false);
+  const requiredImageCount = 2 + (page.icons?.length ?? 0);
 
   const markReady = (imageName) => {
     readyImages.current.add(imageName);
-    if (readyImages.current.size === 2 && !hasReportedReady.current) {
+    if (readyImages.current.size === requiredImageCount && !hasReportedReady.current) {
       hasReportedReady.current = true;
       onReady();
     }
@@ -255,6 +241,21 @@ function StageOverviewSurface({ page, onReady, onError }) {
         }
         onError={onError}
       />
+      {page.icons.map((icon, index) => (
+        <img
+          key={icon.src}
+          className="stage-overview-icon"
+          src={icon.src}
+          alt=""
+          aria-hidden="true"
+          draggable="false"
+          style={areaStyle(icon.area)}
+          onLoad={(event) =>
+            decodeImage(event.currentTarget, () => markReady(`icon-${index}`))
+          }
+          onError={onError}
+        />
+      ))}
     </div>
   );
 }
@@ -805,18 +806,6 @@ export default function App() {
   const page = pages[navigation.current];
 
   useEffect(() => {
-    let cancelled = false;
-
-    Promise.all(CRITICAL_IMAGE_ASSETS.map(preloadImage)).then(() => {
-      if (!cancelled) DETAIL_IMAGE_ASSETS.forEach(preloadImage);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
     if (!outgoing) return undefined;
 
     const timeout = window.setTimeout(() => {
@@ -896,13 +885,6 @@ export default function App() {
     );
   }
 
-  function handleSurfaceClick() {
-    if (navigation.current === "home") return;
-    if (page.kind === "video" || page.returnOnSurface) {
-      startTransition((current) => goBack(current));
-    }
-  }
-
   return (
     <main className="viewport" aria-label="医疗数字化互动展示">
       <section
@@ -911,7 +893,6 @@ export default function App() {
         data-stage={navigation.stage ?? "home"}
         aria-label={page.label}
         aria-busy={outgoing ? "true" : "false"}
-        onClick={handleSurfaceClick}
       >
         <VisualScene
           key={`scene-${navigation.current}`}
@@ -952,17 +933,21 @@ export default function App() {
             onActivate={handleHotspot}
           />
         ) : null}
-        {!outgoing && page.kind === "stage-overview" ? (
+        {!outgoing && navigation.current !== "home" ? (
           <button
             type="button"
-            className="stage-home-button"
-            style={areaStyle(page.homeButton)}
-            aria-label="返回首页"
+            className="page-return-button"
+            style={areaStyle(page.returnButton ?? DEFAULT_RETURN_BUTTON_AREA)}
+            aria-label={page.kind === "stage-overview" ? "返回首页" : "返回上一级"}
             onClick={(event) => {
               event.stopPropagation();
-              startTransition(() => createInitialState());
+              startTransition((current) => goBack(current));
             }}
-          />
+          >
+            {!page.returnButtonBaked ? (
+              <img src={RETURN_BUTTON_IMAGE} alt="" draggable="false" />
+            ) : null}
+          </button>
         ) : null}
       </section>
     </main>

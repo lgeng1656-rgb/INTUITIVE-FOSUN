@@ -47,7 +47,7 @@ test("首页保留左右两个整合入口", () => {
   ]);
 });
 
-test("阶段放大页使用亮版画面并按左右两半进入对应三级页", () => {
+test("阶段放大页使用新版暗亮画面并按左右两半进入对应三级页", () => {
   assert.deepEqual(
     ["pre", "intra", "post"].map((stage) => {
       const page = pages[`${stage}-overview`];
@@ -59,7 +59,7 @@ test("阶段放大页使用亮版画面并按左右两半进入对应三级页",
         image: page.image,
         targets: page.hotspots.map(({ target }) => target),
         areas: page.hotspots.map(({ area }) => area),
-        homeButton: page.homeButton
+        returnButton: page.returnButton
       };
     }),
     [
@@ -67,40 +67,94 @@ test("阶段放大页使用亮版画面并按左右两半进入对应三级页",
         stage: "pre",
         kind: "stage-overview",
         returnOnSurface: false,
-        idleImage: "/assets/medical/stage-pre-idle-20260729.jpg",
-        image: "/assets/medical/stage-pre-active-20260729.jpg",
+        idleImage: "/assets/medical/stage-pre-idle-20260730.webp",
+        image: "/assets/medical/stage-pre-active-20260730.webp",
         targets: ["video-skills-training", "video-surgery-planning"],
         areas: [
           { left: 0, top: 0, width: 50, height: 100 },
           { left: 50, top: 0, width: 50, height: 100 }
         ],
-        homeButton: { left: 91, top: 1, width: 8, height: 12 }
+        returnButton: { left: 1.5, top: 85.5, width: 7, height: 13.5 }
       },
       {
         stage: "intra",
         kind: "stage-overview",
         returnOnSurface: false,
-        idleImage: "/assets/medical/stage-intra-idle-20260729.jpg",
-        image: "/assets/medical/stage-intra-active-20260729.jpg",
+        idleImage: "/assets/medical/stage-intra-idle-20260730.webp",
+        image: "/assets/medical/stage-intra-active-20260730.webp",
         targets: ["video-intraoperative-assistance", "video-remote-teaching"],
         areas: [
           { left: 0, top: 0, width: 50, height: 100 },
           { left: 50, top: 0, width: 50, height: 100 }
         ],
-        homeButton: { left: 91, top: 1, width: 8, height: 12 }
+        returnButton: { left: 1.5, top: 85.5, width: 7, height: 13.5 }
       },
       {
         stage: "post",
         kind: "stage-overview",
         returnOnSurface: false,
-        idleImage: "/assets/medical/stage-post-idle-20260729.jpg",
-        image: "/assets/medical/stage-post-active-20260729.jpg",
+        idleImage: "/assets/medical/stage-post-idle-20260730.webp",
+        image: "/assets/medical/stage-post-active-20260730.webp",
         targets: ["video-surgery-review", "video-quality-control"],
         areas: [
           { left: 0, top: 0, width: 50, height: 100 },
           { left: 50, top: 0, width: 50, height: 100 }
         ],
-        homeButton: { left: 91, top: 1, width: 8, height: 12 }
+        returnButton: { left: 1.5, top: 85.5, width: 7, height: 13.5 }
+      }
+    ]
+  );
+});
+
+test("阶段放大页叠加七个新版点击图标并保留原呼吸灯画面", () => {
+  assert.deepEqual(
+    ["pre", "intra", "post"].map((stage) => ({
+      stage,
+      icons: pages[`${stage}-overview`].icons
+    })),
+    [
+      {
+        stage: "pre",
+        icons: [
+          {
+            src: "/assets/medical/click-pre-left-top.png",
+            area: { left: 39.85, top: 40.93, width: 6.51, height: 11.57 }
+          },
+          {
+            src: "/assets/medical/click-pre-left-bottom.png",
+            area: { left: 8.85, top: 66.85, width: 6.51, height: 11.57 }
+          },
+          {
+            src: "/assets/medical/click-pre-right.png",
+            area: { left: 59.75, top: 50.37, width: 6.51, height: 11.57 }
+          }
+        ]
+      },
+      {
+        stage: "intra",
+        icons: [
+          {
+            src: "/assets/medical/click-intra-left.png",
+            area: { left: 33.85, top: 40.37, width: 6.51, height: 11.57 }
+          },
+          {
+            src: "/assets/medical/click-intra-right.png",
+            area: { left: 85.85, top: 13.89, width: 6.51, height: 11.57 }
+          }
+        ]
+      },
+      {
+        stage: "post",
+        icons: [
+          {
+            src: "/assets/medical/click-post-left.png",
+            area: { left: 25.35, top: 45.93, width: 6.51, height: 11.57 }
+          },
+          {
+            src: "/assets/medical/click-post-right.png",
+            area: { left: 91.35, top: 43.15, width: 6.51, height: 11.57 }
+          }
+        ]
       }
     ]
   );
@@ -108,19 +162,19 @@ test("阶段放大页使用亮版画面并按左右两半进入对应三级页",
 
 test("六个阶段三级页和临床应用整合页使用整图背景与右侧视频", () => {
   const expected = {
-    "video-skills-training": "/assets/medical/detail-pre-skills-20260729.jpg",
-    "video-surgery-planning": "/assets/medical/detail-pre-planning-20260729.jpg",
-    "video-intraoperative-assistance": "/assets/medical/detail-intra-assistance-20260729.jpg",
-    "video-remote-teaching": "/assets/medical/detail-intra-remote-20260729.jpg",
-    "video-surgery-review": "/assets/medical/detail-post-review-20260729.jpg",
-    "video-quality-control": "/assets/medical/detail-post-quality-20260729.jpg",
-    "video-robot-integration": "/assets/medical/detail-clinical-integration-20260729.jpg"
+    "video-skills-training": "/assets/medical/detail-pre-skills-20260730.webp",
+    "video-surgery-planning": "/assets/medical/detail-pre-planning-20260729.webp",
+    "video-intraoperative-assistance": "/assets/medical/detail-intra-assistance-20260729.webp",
+    "video-remote-teaching": "/assets/medical/detail-intra-remote-20260729.webp",
+    "video-surgery-review": "/assets/medical/detail-post-review-20260729.webp",
+    "video-quality-control": "/assets/medical/detail-post-quality-20260730.webp",
+    "video-robot-integration": "/assets/medical/detail-clinical-integration-20260730.webp"
   };
 
   for (const [id, background] of Object.entries(expected)) {
     assert.equal(pages[id].kind, "embedded-video");
     assert.equal(pages[id].background, background);
-    assert.equal(pages[id].returnOnSurface, true);
+    assert.equal(pages[id].returnOnSurface, false);
     assert.deepEqual(pages[id].mediaArea, {
       left: 31,
       top: 15.5,
@@ -142,12 +196,12 @@ test("阶段三级页保持指定腾讯 COS 视频映射", () => {
       quality: pages["video-quality-control"].video
     },
     {
-      skills: `${videoBaseUrl}/%E6%8A%80%E8%83%BD%E5%9F%B9%E8%AE%AD0729%E6%9B%B4%E6%96%B0.mp4`,
+      skills: `${videoBaseUrl}/%E6%8A%80%E8%83%BD%E5%9F%B9%E8%AE%AD0730.mp4`,
       planning: `${videoBaseUrl}/%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92%E6%96%B0.mp4`,
       assistance: `${videoBaseUrl}/2%E8%BE%85%E5%8A%A9%E5%86%B3%E7%AD%96.mp4`,
       teaching: `${videoBaseUrl}/2%E8%BF%9C%E7%A8%8B%E6%95%99%E5%AD%A6.mp4`,
       review: `${videoBaseUrl}/3%E6%89%8B%E6%9C%AF%E5%A4%8D%E7%9B%980727.mp4`,
-      quality: `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%86.mp4`
+      quality: `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%860730%E6%9B%B4%E6%96%B0.mp4`
     }
   );
 });
@@ -184,29 +238,24 @@ test("三个旧阶段按钮素材仍被保留用于兼容现有页面", () => {
   }
 });
 
-test("阶段二级页面只能通过右上角按钮返回首页", () => {
+test("阶段二级页面只能通过左下角按钮返回首页", () => {
   for (const stage of ["pre", "intra", "post"]) {
     const page = pages[`${stage}-overview`];
     assert.equal(page.returnOnSurface, false);
-    assert.deepEqual(page.homeButton, {
-      left: 91,
-      top: 1,
-      width: 8,
-      height: 12
+    assert.deepEqual(page.returnButton, {
+      left: 1.5,
+      top: 85.5,
+      width: 7,
+      height: 13.5
     });
   }
 });
 
-test("除阶段二级页外的交互图片页可通过空白区域返回上级", () => {
-  const interactivePages = Object.entries(pages)
-    .filter(
-      ([id, page]) =>
-        id !== "home" &&
-        page.kind !== "video" &&
-        page.kind !== "stage-overview"
-    )
+test("所有三级页面只能通过左下角按钮返回上一级", () => {
+  const tertiaryPages = Object.entries(pages)
+    .filter(([id, page]) => id !== "home" && page.kind !== "stage-overview")
     .map(([, page]) => page);
 
-  assert.ok(interactivePages.length > 0);
-  assert.ok(interactivePages.every((page) => page.returnOnSurface === true));
+  assert.ok(tertiaryPages.length > 0);
+  assert.ok(tertiaryPages.every((page) => page.returnOnSurface === false));
 });

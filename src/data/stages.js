@@ -1,7 +1,7 @@
 const area = (left, top, width, height) => ({ left, top, width, height });
 const videoBaseUrl =
   "https://intuitive-fosun-videos-1454170689.cos.ap-guangzhou.myqcloud.com";
-const videoIntroBackground = "/assets/medical/video-intro-background.jpg";
+const videoIntroBackground = "/assets/medical/video-intro-background.webp";
 
 const videoIntroPage = ({
   label,
@@ -30,7 +30,7 @@ const embeddedVideoPage = ({ label, background, video }) => ({
   background,
   video,
   mediaArea: area(31, 15.5, 68, 68.5),
-  returnOnSurface: true,
+  returnOnSurface: false,
   hotspots: []
 });
 
@@ -144,9 +144,24 @@ export const pages = {
     kind: "stage-overview",
     label: "术前全场景",
     stage: "pre",
-    idleImage: "/assets/medical/stage-pre-idle-20260729.jpg",
-    image: "/assets/medical/stage-pre-active-20260729.jpg",
-    homeButton: area(91, 1, 8, 12),
+    idleImage: "/assets/medical/stage-pre-idle-20260730.webp",
+    image: "/assets/medical/stage-pre-active-20260730.webp",
+    returnButton: area(1.5, 85.5, 7, 13.5),
+    returnButtonBaked: true,
+    icons: [
+      {
+        src: "/assets/medical/click-pre-left-top.png",
+        area: area(39.85, 40.93, 6.51, 11.57)
+      },
+      {
+        src: "/assets/medical/click-pre-left-bottom.png",
+        area: area(8.85, 66.85, 6.51, 11.57)
+      },
+      {
+        src: "/assets/medical/click-pre-right.png",
+        area: area(59.75, 50.37, 6.51, 11.57)
+      }
+    ],
     returnOnSurface: false,
     hotspots: [
       {
@@ -169,18 +184,18 @@ export const pages = {
     kind: "full-image",
     label: "技能培训场景",
     stage: "pre",
-    image: "/assets/medical/pre-training.jpg",
+    image: "/assets/medical/pre-training.webp",
     buttons: "baked",
-    returnOnSurface: true,
+    returnOnSurface: false,
     hotspots: []
   },
   "pre-planning": {
     kind: "full-image",
     label: "手术规划场景",
     stage: "pre",
-    image: "/assets/medical/pre-planning.jpg",
+    image: "/assets/medical/pre-planning.webp",
     buttons: "baked",
-    returnOnSurface: true,
+    returnOnSurface: false,
     hotspots: [
       {
         id: "planning-video",
@@ -195,9 +210,20 @@ export const pages = {
     kind: "stage-overview",
     label: "术中全场景",
     stage: "intra",
-    idleImage: "/assets/medical/stage-intra-idle-20260729.jpg",
-    image: "/assets/medical/stage-intra-active-20260729.jpg",
-    homeButton: area(91, 1, 8, 12),
+    idleImage: "/assets/medical/stage-intra-idle-20260730.webp",
+    image: "/assets/medical/stage-intra-active-20260730.webp",
+    returnButton: area(1.5, 85.5, 7, 13.5),
+    returnButtonBaked: true,
+    icons: [
+      {
+        src: "/assets/medical/click-intra-left.png",
+        area: area(33.85, 40.37, 6.51, 11.57)
+      },
+      {
+        src: "/assets/medical/click-intra-right.png",
+        area: area(85.85, 13.89, 6.51, 11.57)
+      }
+    ],
     returnOnSurface: false,
     hotspots: [
       {
@@ -220,18 +246,29 @@ export const pages = {
     kind: "composite",
     label: "远程教学场景",
     stage: "intra",
-    image: "/assets/medical/intra-remote.jpg",
+    image: "/assets/medical/intra-remote.webp",
     buttons: "rendered",
-    returnOnSurface: true,
+    returnOnSurface: false,
     hotspots: []
   },
   "post-overview": {
     kind: "stage-overview",
     label: "术后全场景",
     stage: "post",
-    idleImage: "/assets/medical/stage-post-idle-20260729.jpg",
-    image: "/assets/medical/stage-post-active-20260729.jpg",
-    homeButton: area(91, 1, 8, 12),
+    idleImage: "/assets/medical/stage-post-idle-20260730.webp",
+    image: "/assets/medical/stage-post-active-20260730.webp",
+    returnButton: area(1.5, 85.5, 7, 13.5),
+    returnButtonBaked: true,
+    icons: [
+      {
+        src: "/assets/medical/click-post-left.png",
+        area: area(25.35, 45.93, 6.51, 11.57)
+      },
+      {
+        src: "/assets/medical/click-post-right.png",
+        area: area(91.35, 43.15, 6.51, 11.57)
+      }
+    ],
     returnOnSurface: false,
     hotspots: [
       {
@@ -254,24 +291,28 @@ export const pages = {
     kind: "video",
     label: "推想手术规划视频",
     stage: "pre",
+    returnOnSurface: false,
     video: `${videoBaseUrl}/planning.mp4`
   },
   "video-navigation": {
     kind: "video",
     label: "睿术术中导航视频",
     stage: "intra",
+    returnOnSurface: false,
     video: `${videoBaseUrl}/navigation.mp4`
   },
   "video-review": {
     kind: "video",
     label: "睿术手术复盘视频",
     stage: "post",
+    returnOnSurface: false,
     video: `${videoBaseUrl}/review.mp4`
   },
   "video-analysis": {
     kind: "video",
     label: "睿术数据分析视频",
     stage: "post",
+    returnOnSurface: false,
     video: `${videoBaseUrl}/analysis.mp4`
   },
   "video-robot-integration": {
@@ -282,13 +323,14 @@ export const pages = {
   "video-ui-integration": {
     kind: "video",
     label: "用户界面整合视频",
+    returnOnSurface: false,
     video: `${videoBaseUrl}/planning.mp4`
   },
   "video-skills-training": {
     ...videoIntroPage({
       label: "术前-技能培训",
       video: `${videoBaseUrl}/%E6%8A%80%E8%83%BD%E5%9F%B9%E8%AE%AD1.mp4`,
-      background: "/assets/medical/secondary-pre-skills.jpg",
+      background: "/assets/medical/secondary-pre-skills.webp",
       contentBaked: true
     })
   },
@@ -296,7 +338,7 @@ export const pages = {
     ...videoIntroPage({
       label: "术前-手术规划",
       video: `${videoBaseUrl}/%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92%E6%96%B0.mp4`,
-      background: "/assets/medical/secondary-pre-planning.jpg",
+      background: "/assets/medical/secondary-pre-planning.webp",
       contentBaked: true
     })
   },
@@ -304,7 +346,7 @@ export const pages = {
     ...videoIntroPage({
       label: "术中-辅助决策",
       video: `${videoBaseUrl}/2%E8%BE%85%E5%8A%A9%E5%86%B3%E7%AD%96.mp4`,
-      background: "/assets/medical/secondary-intra-assistance.jpg",
+      background: "/assets/medical/secondary-intra-assistance.webp",
       contentBaked: true
     })
   },
@@ -312,7 +354,7 @@ export const pages = {
     ...videoIntroPage({
       label: "术中-远程教学",
       video: `${videoBaseUrl}/2%E8%BF%9C%E7%A8%8B%E6%95%99%E5%AD%A6.mp4`,
-      background: "/assets/medical/secondary-intra-remote.jpg",
+      background: "/assets/medical/secondary-intra-remote.webp",
       contentBaked: true
     })
   },
@@ -327,7 +369,7 @@ export const pages = {
     ...videoIntroPage({
       label: "术后-手术复盘",
       video: `${videoBaseUrl}/3%E6%89%8B%E6%9C%AF%E5%A4%8D%E7%9B%980727.mp4`,
-      background: "/assets/medical/secondary-post-review-20260727.jpg",
+      background: "/assets/medical/secondary-post-review-20260727.webp",
       contentBaked: true
     })
   }
@@ -336,37 +378,39 @@ export const pages = {
 Object.assign(pages, {
   "video-robot-integration": embeddedVideoPage({
     label: "临床应用功能整合",
-    background: "/assets/medical/detail-clinical-integration-20260729.jpg",
+    background: "/assets/medical/detail-clinical-integration-20260730.webp",
     video: `${videoBaseUrl}/%E4%B8%B4%E5%BA%8A%E5%BA%94%E7%94%A8%E5%8A%9F%E8%83%BD%E6%95%B4%E5%90%88.mp4`
   }),
   "video-skills-training": embeddedVideoPage({
     label: "术前-技能培训",
-    background: "/assets/medical/detail-pre-skills-20260729.jpg",
-    video: `${videoBaseUrl}/%E6%8A%80%E8%83%BD%E5%9F%B9%E8%AE%AD0729%E6%9B%B4%E6%96%B0.mp4`
+    background: "/assets/medical/detail-pre-skills-20260730.webp",
+    video: `${videoBaseUrl}/%E6%8A%80%E8%83%BD%E5%9F%B9%E8%AE%AD0730.mp4`
   }),
   "video-surgery-planning": embeddedVideoPage({
     label: "术前-手术规划",
-    background: "/assets/medical/detail-pre-planning-20260729.jpg",
+    background: "/assets/medical/detail-pre-planning-20260729.webp",
     video: `${videoBaseUrl}/%E6%89%8B%E6%9C%AF%E8%A7%84%E5%88%92%E6%96%B0.mp4`
   }),
   "video-intraoperative-assistance": embeddedVideoPage({
     label: "术中-辅助决策",
-    background: "/assets/medical/detail-intra-assistance-20260729.jpg",
+    background: "/assets/medical/detail-intra-assistance-20260729.webp",
     video: `${videoBaseUrl}/2%E8%BE%85%E5%8A%A9%E5%86%B3%E7%AD%96.mp4`
   }),
   "video-remote-teaching": embeddedVideoPage({
     label: "术中-远程教学",
-    background: "/assets/medical/detail-intra-remote-20260729.jpg",
+    background: "/assets/medical/detail-intra-remote-20260729.webp",
     video: `${videoBaseUrl}/2%E8%BF%9C%E7%A8%8B%E6%95%99%E5%AD%A6.mp4`
   }),
   "video-surgery-review": embeddedVideoPage({
     label: "术后-手术复盘",
-    background: "/assets/medical/detail-post-review-20260729.jpg",
+    background: "/assets/medical/detail-post-review-20260729.webp",
     video: `${videoBaseUrl}/3%E6%89%8B%E6%9C%AF%E5%A4%8D%E7%9B%980727.mp4`
   }),
   "video-quality-control": embeddedVideoPage({
     label: "术后-质控管理",
-    background: "/assets/medical/detail-post-quality-20260729.jpg",
-    video: `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%86.mp4`
+    background: "/assets/medical/detail-post-quality-20260730.webp",
+    video: `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%860730%E6%9B%B4%E6%96%B0.mp4`
   })
 });
+
+pages["video-quality-control"].returnButtonBaked = true;

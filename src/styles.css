@@ -142,14 +142,33 @@ button {
   animation: stage-image-breathe 1.8s ease-in-out infinite;
 }
 
-.stage-home-button {
+.stage-overview-icon {
   position: absolute;
-  z-index: 20;
+  z-index: 3;
+  display: block;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.page-return-button {
+  position: absolute;
+  z-index: 30;
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page-return-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 @keyframes stage-image-breathe {

@@ -10,19 +10,28 @@ test("stage overview crossfades supplied idle and bright artwork without rectang
   assert.match(source, /className="stage-overview-base"/);
   assert.match(source, /className="stage-overview-glow"/);
   assert.doesNotMatch(source, /className="stage-breath-light/);
-  assert.match(source, /className="stage-home-button"/);
+  assert.match(source, /className="page-return-button"/);
   assert.match(styles, /@keyframes stage-image-breathe/);
   assert.match(styles, /animation:\s*stage-image-breathe/);
   assert.doesNotMatch(styles, /\.stage-breath-light|stage-screen-breathe/);
 });
 
-test("stage overview home button renders above the full-width hotspot layer", async () => {
+test("unified left-bottom return button renders above the full-width hotspot layer", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
 
   assert.match(
     source,
-    /<HotspotLayer[\s\S]*page\.kind === "stage-overview"[\s\S]*className="stage-home-button"/
+    /<HotspotLayer[\s\S]*navigation\.current !== "home"[\s\S]*className="page-return-button"/
   );
+  assert.match(source, /return-button\.png/);
+  assert.match(
+    source,
+    /const DEFAULT_RETURN_BUTTON_AREA = \{[\s\S]*left:\s*2\.71,[\s\S]*top:\s*88\.43,[\s\S]*width:\s*4\.43,[\s\S]*height:\s*7\.87/
+  );
+  assert.match(source, /startTransition\(\(current\) => goBack\(current\)\)/);
+  assert.doesNotMatch(source, /onClick=\{handleSurfaceClick\}/);
+  assert.match(styles, /\.page-return-button\s*\{[^}]*z-index:\s*30/s);
 });
 
 test("embedded video pages use a baked background and keep video clicks from returning", async () => {
@@ -62,13 +71,24 @@ test("homepage uses the supplied center and bottom artwork while keeping the orb
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
 
-  assert.match(source, /home-center-20260729\.jpg/);
-  assert.match(source, /home-bottom-20260729\.png/);
+  assert.match(source, /home-center-20260730\.webp/);
+  assert.match(source, /home-bottom-20260729\.webp/);
   assert.match(source, /home-left-integration-20260729\.png/);
   assert.match(source, /<HomeOrbitCanvas \/>/);
   assert.match(styles, /\.home-bottom\s*\{[^}]*left:\s*7\.85%[^}]*width:\s*84\.3%/s);
   assert.match(styles, /\.home-integration\s*\{[^}]*z-index:\s*4/s);
   assert.match(styles, /\.home-orbit\s*\{[^}]*z-index:\s*5/s);
+});
+
+test("stage overview renders supplied click icons above the breathing artwork", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
+
+  assert.match(source, /page\.icons\.map/);
+  assert.match(source, /className="stage-overview-icon"/);
+  assert.match(source, /style=\{areaStyle\(icon\.area\)\}/);
+  assert.match(styles, /\.stage-overview-icon\s*\{[^}]*z-index:\s*3/s);
+  assert.match(styles, /\.stage-overview-glow\s*\{[^}]*animation:\s*stage-image-breathe/s);
 });
 
 test("App JSX显式提供当前Vite配置所需的React运行时", async () => {
@@ -85,7 +105,7 @@ test("页面切换保留旧画面直到目标图片或视频可以显示", async
   assert.match(source, /preload="auto"/);
 });
 
-test("阶段入口使用手动播放的视频介绍页并允许点击空白返回", async () => {
+test("阶段入口使用手动播放的视频介绍页并阻止视频控件冒泡", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
 
@@ -109,10 +129,9 @@ test("视频播放期间保留上一级场景并优先预加载三个阶段总�
 
   assert.match(source, /retained-scene/);
   assert.match(source, /retained/);
-  assert.match(source, /CRITICAL_IMAGE_ASSETS/);
-  assert.match(source, /pre-overview\.jpg/);
-  assert.match(source, /intra-overview\.jpg/);
-  assert.match(source, /post-overview\.jpg/);
+  assert.doesNotMatch(source, /CRITICAL_IMAGE_ASSETS/);
+  assert.doesNotMatch(source, /DETAIL_IMAGE_ASSETS/);
+  assert.doesNotMatch(source, /function preloadImage/);
 });
 
 test("首页提前连接广州 COS 以减少首次视频播放等待", async () => {
@@ -270,7 +289,7 @@ test("bottom glass container uses the default breathing animation without microp
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
 
-  assert.match(source, /home-bottom-20260729\.png/);
+  assert.match(source, /home-bottom-20260729\.webp/);
   assert.match(source, /renderImage\("bottom"/);
   assert.match(source, /<div className="home-bottom-breath" aria-hidden="true" \/>/);
   assert.doesNotMatch(source, /getUserMedia|AudioContext|webkitAudioContext/);
