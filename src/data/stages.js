@@ -324,7 +324,7 @@ export const pages = {
     kind: "video",
     label: "用户界面整合视频",
     returnOnSurface: false,
-    video: `${videoBaseUrl}/planning.mp4`
+    video: `${videoBaseUrl}/%E5%8F%B3%E8%BE%B9%E7%94%A8%E6%88%B7%E7%95%8C%E9%9D%A2%E6%95%B4%E5%90%88.m4v`
   },
   "video-skills-training": {
     ...videoIntroPage({
