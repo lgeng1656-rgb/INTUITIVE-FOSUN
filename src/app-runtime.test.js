@@ -47,7 +47,7 @@ test("embedded video pages use a baked background and keep video clicks from ret
   assert.match(styles, /\.embedded-video-media\s*\{/);
 });
 
-test("all video surfaces autoplay muted and keep native playback controls", async () => {
+test("all video surfaces play with sound enabled and keep native playback controls", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
 
   for (const className of [
@@ -61,7 +61,7 @@ test("all video surfaces autoplay muted and keep native playback controls", asyn
 
     assert.ok(videoTag, `missing ${className} video element`);
     assert.match(videoTag, /\bautoPlay\b/);
-    assert.match(videoTag, /\bmuted\b/);
+    assert.doesNotMatch(videoTag, /\bmuted\b/);
     assert.match(videoTag, /\bcontrols\b/);
     assert.match(videoTag, /\bplaysInline\b/);
   }

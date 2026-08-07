@@ -63,7 +63,6 @@ function VideoSurface({ page, onReady, onError }) {
         className="video-player"
         src={page.video}
         autoPlay
-        muted
         controls
         playsInline
         preload="auto"
@@ -128,7 +127,6 @@ function VideoIntroSurface({ page, onReady, onError }) {
             className="video-intro-player"
             src={page.video}
             autoPlay
-            muted
             controls
             playsInline
             preload="metadata"
@@ -192,7 +190,6 @@ function EmbeddedVideoSurface({ page, onReady, onError }) {
           className="embedded-video-player"
           src={page.video}
           autoPlay
-          muted
           controls
           playsInline
           preload="metadata"
