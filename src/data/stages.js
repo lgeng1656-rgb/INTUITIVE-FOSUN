@@ -413,5 +413,3 @@ Object.assign(pages, {
     video: `${videoBaseUrl}/3%E8%B4%A8%E6%8E%A7%E7%AE%A1%E7%90%860730%E6%9B%B4%E6%96%B0.mp4`
   })
 });
-
-pages["video-quality-control"].returnButtonBaked = true;

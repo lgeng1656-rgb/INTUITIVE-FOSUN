@@ -206,6 +206,11 @@ test("阶段三级页保持指定腾讯 COS 视频映射", () => {
   );
 });
 
+test("术后两个三级视频页使用相同的标准返回按钮", () => {
+  assert.equal(pages["video-surgery-review"].returnButtonBaked, undefined);
+  assert.equal(pages["video-quality-control"].returnButtonBaked, undefined);
+});
+
 test("首页只保留一个技能培训视频入口", () => {
   const skillHotspots = pages.home.hotspots.filter(({ id }) =>
     id.startsWith("home-skills-training")
