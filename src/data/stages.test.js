@@ -234,8 +234,10 @@ test("临床应用功能整合进入二级页面并使用指定视频", () => {
 test("首页右侧用户界面整合入口使用指定视频", () => {
   assert.equal(
     pages["video-ui-integration"].video,
-    `${videoBaseUrl}/%E5%8F%B3%E8%BE%B9%E7%94%A8%E6%88%B7%E7%95%8C%E9%9D%A2%E6%95%B4%E5%90%88.m4v`
+    `${videoBaseUrl}/%E7%94%A8%E6%88%B7%E7%95%8C%E9%9D%A2%E6%95%B4%E5%90%880807.mp4`
   );
+  assert.equal(pages["video-ui-integration"].loop, true);
+  assert.equal(pages["video-robot-integration"].loop, undefined);
 });
 
 test("三个旧阶段按钮素材仍被保留用于兼容现有页面", () => {

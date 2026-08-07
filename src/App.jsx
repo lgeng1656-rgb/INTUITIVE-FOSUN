@@ -63,6 +63,7 @@ function VideoSurface({ page, onReady, onError }) {
         className="video-player"
         src={page.video}
         autoPlay
+        loop={page.loop}
         controls
         playsInline
         preload="auto"

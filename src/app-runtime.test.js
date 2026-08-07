@@ -67,6 +67,16 @@ test("all video surfaces play with sound enabled and keep native playback contro
   }
 });
 
+test("standard video surface follows the selected page loop setting", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  const videoTag = source.match(
+    /<video[\s\S]*?className="video-player"[\s\S]*?\/>/
+  )?.[0];
+
+  assert.ok(videoTag, "missing video-player video element");
+  assert.match(videoTag, /\bloop=\{page\.loop\}/);
+});
+
 test("homepage uses the supplied center and bottom artwork while keeping the orbit canvas", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("./styles.css", import.meta.url), "utf8");
